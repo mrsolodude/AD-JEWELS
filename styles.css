@@ -2285,14 +2285,19 @@ body.subpage-active {
 }
 
 /* Large preview image inside showcase canvas */
-.showcase-canvas #imgArchiveDisplay {
-    max-width: 90%;
-    max-height: 90%;
-    object-fit: contain;
+.showcase-canvas #imgArchiveDisplay,
+.showcase-canvas #overlayImgDisplay,
+.showcase-canvas #kaasuImgDisplay {
+    width: auto !important;
+    height: auto !important;
+    max-width: 90% !important;
+    max-height: calc(100vh - 280px) !important; /* Adaptive to screen height of PC, desktop, laptop, tablet, mobile */
+    object-fit: contain !important; /* Maintains perfect natural aspect ratio without distortion */
     transition: opacity 0.25s ease-in-out;
     display: block;
-    border-radius: 4px;
+    border-radius: 6px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+    margin-bottom: 120px !important; /* Guaranteed vertical clearance from selection card */
 }
 
 /* Back to Masterpieces button hover */
