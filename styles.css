@@ -2322,80 +2322,117 @@ body.subpage-active {
 }
 
 /* ==========================================================================
-   MOBILE RESPONSIVE HERO CATALOG EXPLORER STYLES
+   MOBILE RESPONSIVE HERO CATALOG EXPLORER STYLES (FULL-SCREEN LIGHTBOX OVERLAY)
    ========================================================================== */
 @media (max-width: 768px) {
-    /* Stack large preview canvas on top, thumbnail strip at bottom */
+    /* Set layout wrapper to stack column by default on mobile */
     .catalog-main {
-        flex-direction: column-reverse !important;
+        flex-direction: column !important;
+        position: relative !important;
     }
 
-    /* Convert vertical sidebar into horizontal bar at bottom */
-    .sidebar-thumbnails {
-        width: 100% !important;
-        height: 110px !important;
-        border-right: none !important;
-        border-top: 1px solid rgba(191, 149, 63, 0.2) !important;
-        background: #0a0a0a !important;
-    }
-
-    /* Hide the text title header within the bottom strip on mobile to maximize height */
-    .sidebar-thumbnails > div:first-child {
+    /* By default on mobile: HIDE showcase canvas, show Thumbnail Grid in full screen */
+    .catalog-main .showcase-canvas {
         display: none !important;
+    }
+
+    .catalog-main .sidebar-thumbnails {
+        display: flex !important;
+        width: 100% !important;
+        height: 100% !important;
+        border-right: none !important;
+        background: #050505 !important;
+        flex: 1 !important;
+    }
+
+    /* Show the text title header within the bottom strip on mobile to maximize height */
+    .sidebar-thumbnails > div:first-child {
+        display: block !important;
+        padding: 1.1rem 1.25rem !important;
+        border-bottom: 1px solid rgba(191, 149, 63, 0.15) !important;
+        background: rgba(0, 0, 0, 0.5) !important;
     }
 
     /* Transform vertical grid into horizontal single-row scrollbar */
     .sidebar-thumb-grid {
-        display: flex !important;
-        flex-direction: row !important;
-        overflow-x: auto !important;
-        overflow-y: hidden !important;
-        gap: 10px !important;
-        padding: 12px 16px !important;
-        white-space: nowrap !important;
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 12px !important;
+        padding: 1.1rem !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
         width: 100% !important;
-        height: 100% !important;
+        height: auto !important;
         box-sizing: border-box !important;
     }
 
     /* Make thumbnails perfect squares and scroll horizontally */
     .sidebar-thumb-grid img {
-        width: 86px !important;
-        height: 86px !important;
-        flex-shrink: 0 !important;
+        width: 100% !important;
+        height: auto !important;
         aspect-ratio: 1/1 !important;
         object-fit: cover !important;
+        border-radius: 6px !important;
     }
 
-    /* Showcase canvas styling */
-    .showcase-canvas {
-        flex: 1 !important;
-        height: auto !important;
-        padding: 1rem !important;
+    /* ==========================================================================
+       SHOWCASE ACTIVE STATE: Swaps views to show full screen large image
+       ========================================================================== */
+    .catalog-main.showcase-active .sidebar-thumbnails {
+        display: none !important;
+    }
+
+    .catalog-main.showcase-active .showcase-canvas {
         display: flex !important;
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        z-index: 50 !important;
+        background: #000000 !important;
+        padding: 1rem !important;
         justify-content: center !important;
         align-items: center !important;
-        position: relative !important;
+    }
+
+    /* Make close button (Back to Grid) visible inside the showcase modal */
+    .showcase-canvas .close-showcase-btn {
+        display: block !important;
+        position: absolute !important;
+        top: 16px !important;
+        left: 16px !important;
+        background: rgba(0, 0, 0, 0.75) !important;
+        border: 1px solid rgba(191, 149, 63, 0.4) !important;
+        color: #bf953f !important;
+        border-radius: 4px !important;
+        padding: 6px 14px !important;
+        font-size: 0.72rem !important;
+        text-transform: uppercase !important;
+        font-weight: 600 !important;
+        z-index: 100 !important;
+        backdrop-filter: blur(5px) !important;
     }
 
     /* Adjust showcase images on mobile to fit nicely above the card and not bleed */
-    .showcase-canvas #imgArchiveDisplay,
-    .showcase-canvas #overlayImgDisplay,
-    .showcase-canvas #kaasuImgDisplay {
-        max-width: 88% !important;
-        max-height: 48vh !important;
-        margin-bottom: 80px !important; /* space so they do not touch the selection card */
+    .catalog-main.showcase-active .showcase-canvas #imgArchiveDisplay,
+    .catalog-main.showcase-active .showcase-canvas #overlayImgDisplay,
+    .catalog-main.showcase-active .showcase-canvas #kaasuImgDisplay {
+        max-width: 92% !important;
+        max-height: 60vh !important; /* Majestic large size! */
+        margin-bottom: 95px !important; /* clearance for the bottom card */
+        border-radius: 8px !important;
+        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.9) !important;
     }
 
     /* Reposition and scale the absolute positioned info card */
-    .showcase-canvas > div {
-        bottom: 12px !important;
+    .catalog-main.showcase-active .showcase-canvas > div {
+        bottom: 24px !important;
         left: 50% !important;
         transform: translateX(-50%) !important;
-        min-width: 86% !important;
-        max-width: 86% !important;
-        padding: 0.65rem 1.1rem !important;
-        gap: 0.25rem !important;
+        min-width: 88% !important;
+        max-width: 88% !important;
+        padding: 0.75rem 1.25rem !important;
+        gap: 0.3rem !important;
     }
 
     /* Adjust typography sizing in selections panel for mobile */
@@ -2418,20 +2455,20 @@ body.subpage-active {
     .showcase-canvas button[id*="Next"],
     .showcase-canvas button[class*="prev"],
     .showcase-canvas button[class*="next"] {
-        width: 38px !important;
-        height: 38px !important;
-        font-size: 1.4rem !important;
-        top: 42% !important; /* aligns with centered display image */
+        width: 44px !important;
+        height: 44px !important;
+        font-size: 1.6rem !important;
+        top: 45% !important; /* aligns with centered display image */
     }
 
     .showcase-canvas button[id*="Prev"],
     .showcase-canvas button[class*="prev"] {
-        left: 10px !important;
+        left: 12px !important;
     }
 
     .showcase-canvas button[id*="Next"],
     .showcase-canvas button[class*="next"] {
-        right: 10px !important;
+        right: 12px !important;
     }
 }
 

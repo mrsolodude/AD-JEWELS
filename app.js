@@ -44,6 +44,11 @@
         overlayIdx = (idx + overlayArchives.length) % overlayArchives.length;
         const src = './jimiki/' + overlayArchives[overlayIdx];
 
+        const mainEl = overlay ? overlay.querySelector('.catalog-main') : null;
+        if (mainEl && window.innerWidth <= 768) {
+            mainEl.classList.add('showcase-active');
+        }
+
         if (imgDisplay) {
             imgDisplay.style.opacity = '0';
             setTimeout(() => {
@@ -213,6 +218,12 @@
     function kShow(idx) {
         kaasuIdx = (idx + kaasuArchives.length) % kaasuArchives.length;
         const src = KAASU_DIR + kaasuArchives[kaasuIdx];
+
+        const mainEl = kOverlay ? kOverlay.querySelector('.catalog-main') : null;
+        if (mainEl && window.innerWidth <= 768) {
+            mainEl.classList.add('showcase-active');
+        }
+
         if (kImg) {
             kImg.style.opacity = '0';
             setTimeout(() => { kImg.src = src; kImg.style.opacity = '1'; }, 130);
@@ -479,6 +490,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     e.stopPropagation(); // Avoid triggering catalog selection resets
                     activeArchiveIdx = index;
                     updateArchiveSlider();
+
+                    const mainEl = document.querySelector('.catalog-main');
+                    if (mainEl && window.innerWidth <= 768) {
+                        mainEl.classList.add('showcase-active');
+                    }
                 });
                 
                 archiveCatalogGrid.appendChild(img);
@@ -1827,4 +1843,22 @@ document.addEventListener('DOMContentLoaded', () => {
         // Periodically spawn new elements to maintain ambient density (every 4 seconds)
         setInterval(spawnFloatingJewel, 4000);
     }
+
+    // Global Close Showcase click handler (Grid view transition) for mobile
+    document.addEventListener('click', (e) => {
+        if (e.target && e.target.classList.contains('close-showcase-btn')) {
+            const main = e.target.closest('.catalog-main');
+            if (main) {
+                main.classList.remove('showcase-active');
+                
+                // Also scroll active thumbnail into view to ensure perfect centering alignment
+                const activeThumb = main.querySelector('.sidebar-thumb-grid img[style*="border-color"], .sidebar-thumb-grid img[style*="border: 2px"], .sidebar-thumb-grid img.active-thumb');
+                if (activeThumb) {
+                    setTimeout(() => {
+                        activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                    }, 50);
+                }
+            }
+        }
+    });
 });
