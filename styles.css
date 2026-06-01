@@ -2316,4 +2316,119 @@ body.subpage-active {
     overflow-y: auto;
 }
 
+/* ==========================================================================
+   MOBILE RESPONSIVE HERO CATALOG EXPLORER STYLES
+   ========================================================================== */
+@media (max-width: 768px) {
+    /* Stack large preview canvas on top, thumbnail strip at bottom */
+    .catalog-main {
+        flex-direction: column-reverse !important;
+    }
+
+    /* Convert vertical sidebar into horizontal bar at bottom */
+    .sidebar-thumbnails {
+        width: 100% !important;
+        height: 110px !important;
+        border-right: none !important;
+        border-top: 1px solid rgba(191, 149, 63, 0.2) !important;
+        background: #0a0a0a !important;
+    }
+
+    /* Hide the text title header within the bottom strip on mobile to maximize height */
+    .sidebar-thumbnails > div:first-child {
+        display: none !important;
+    }
+
+    /* Transform vertical grid into horizontal single-row scrollbar */
+    .sidebar-thumb-grid {
+        display: flex !important;
+        flex-direction: row !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        gap: 10px !important;
+        padding: 12px 16px !important;
+        white-space: nowrap !important;
+        width: 100% !important;
+        height: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Make thumbnails perfect squares and scroll horizontally */
+    .sidebar-thumb-grid img {
+        width: 86px !important;
+        height: 86px !important;
+        flex-shrink: 0 !important;
+        aspect-ratio: 1/1 !important;
+        object-fit: cover !important;
+    }
+
+    /* Showcase canvas styling */
+    .showcase-canvas {
+        flex: 1 !important;
+        height: auto !important;
+        padding: 1rem !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        position: relative !important;
+    }
+
+    /* Adjust showcase images on mobile to fit nicely above the card and not bleed */
+    .showcase-canvas #imgArchiveDisplay,
+    .showcase-canvas #overlayImgDisplay,
+    .showcase-canvas #kaasuImgDisplay {
+        max-width: 88% !important;
+        max-height: 48vh !important;
+        margin-bottom: 80px !important; /* space so they do not touch the selection card */
+    }
+
+    /* Reposition and scale the absolute positioned info card */
+    .showcase-canvas > div {
+        bottom: 12px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        min-width: 86% !important;
+        max-width: 86% !important;
+        padding: 0.65rem 1.1rem !important;
+        gap: 0.25rem !important;
+    }
+
+    /* Adjust typography sizing in selections panel for mobile */
+    .showcase-canvas > div span {
+        font-size: 0.58rem !important;
+    }
+    
+    .showcase-canvas > div strong {
+        font-size: 0.78rem !important;
+    }
+
+    .showcase-canvas > div button {
+        font-size: 0.62rem !important;
+        padding: 0.4rem 0.8rem !important;
+        margin-top: 0.05rem !important;
+    }
+
+    /* Navigation buttons (prev/next) on mobile */
+    .showcase-canvas button[id*="Prev"],
+    .showcase-canvas button[id*="Next"],
+    .showcase-canvas button[class*="prev"],
+    .showcase-canvas button[class*="next"] {
+        width: 38px !important;
+        height: 38px !important;
+        font-size: 1.4rem !important;
+        top: 42% !important; /* aligns with centered display image */
+    }
+
+    .showcase-canvas button[id*="Prev"],
+    .showcase-canvas button[class*="prev"] {
+        left: 10px !important;
+    }
+
+    .showcase-canvas button[id*="Next"],
+    .showcase-canvas button[class*="next"] {
+        right: 10px !important;
+    }
+}
+
+
 

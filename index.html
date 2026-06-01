@@ -1012,10 +1012,10 @@
         </header>
 
         <!-- Overlay Body: Sidebar + Canvas -->
-        <main style="display: flex; flex: 1; overflow: hidden; min-height: 0;">
+        <main class="catalog-main" style="display: flex; flex: 1; overflow: hidden; min-height: 0;">
 
             <!-- Left Sidebar Thumbnail Strip -->
-            <aside
+            <aside class="sidebar-thumbnails"
                 style="width: 300px; border-right: 1px solid rgba(191,149,63,0.15); background: #0a0a0a; display: flex; flex-direction: column; flex-shrink: 0; height: 100%; overflow: hidden;">
                 <div
                     style="padding: 1.1rem 1.25rem; border-bottom: 1px solid rgba(191,149,63,0.1); background: rgba(0,0,0,0.3);">
@@ -1026,13 +1026,13 @@
                         style="font-family: 'Cinzel Decorative', serif; font-size: 0.95rem; color: #fff; margin: 0; font-weight: 700;">
                         Jimikki Archive (102)</h3>
                 </div>
-                <div id="overlayCatalogGrid"
+                <div id="overlayCatalogGrid" class="sidebar-thumb-grid"
                     style="flex: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 1.1rem;">
                 </div>
             </aside>
 
             <!-- Right Canvas: Large Image -->
-            <section
+            <section class="showcase-canvas"
                 style="flex: 1; position: relative; background: #000; display: flex; justify-content: center; align-items: center; overflow: hidden;">
                 <button id="overlayBtnPrev" type="button" aria-label="Previous"
                     style="position: absolute; left: 18px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); border: 1px solid rgba(191,149,63,0.35); color: #bf953f; width: 44px; height: 44px; border-radius: 50%; font-size: 1.6rem; cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">&#8249;</button>
@@ -1092,10 +1092,10 @@
         </header>
 
         <!-- Overlay Body: Sidebar + Canvas -->
-        <main style="display: flex; flex: 1; overflow: hidden; min-height: 0;">
+        <main class="catalog-main" style="display: flex; flex: 1; overflow: hidden; min-height: 0;">
 
             <!-- Left Sidebar Thumbnail Strip -->
-            <aside
+            <aside class="sidebar-thumbnails"
                 style="width: 300px; border-right: 1px solid rgba(191,149,63,0.15); background: #0a0a0a; display: flex; flex-direction: column; flex-shrink: 0; height: 100%; overflow: hidden;">
                 <div
                     style="padding: 1.1rem 1.25rem; border-bottom: 1px solid rgba(191,149,63,0.1); background: rgba(0,0,0,0.3);">
@@ -1106,13 +1106,13 @@
                         style="font-family: 'Cinzel Decorative', serif; font-size: 0.95rem; color: #fff; margin: 0; font-weight: 700;">
                         Kaasu Maalai Archive (136)</h3>
                 </div>
-                <div id="kaasuCatalogGrid"
+                <div id="kaasuCatalogGrid" class="sidebar-thumb-grid"
                     style="flex: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 1.1rem;">
                 </div>
             </aside>
 
             <!-- Right Canvas: Large Image -->
-            <section
+            <section class="showcase-canvas"
                 style="flex: 1; position: relative; background: #000; display: flex; justify-content: center; align-items: center; overflow: hidden;">
                 <button id="kaasuBtnPrev" type="button" aria-label="Previous"
                     style="position: absolute; left: 18px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); border: 1px solid rgba(191,149,63,0.35); color: #bf953f; width: 44px; height: 44px; border-radius: 50%; font-size: 1.6rem; cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">&#8249;</button>

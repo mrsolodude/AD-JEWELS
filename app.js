@@ -61,7 +61,7 @@
                     ? '2px solid #bf953f'
                     : '1px solid rgba(255,255,255,0.08)';
                 t.style.boxShadow = i === overlayIdx ? '0 0 10px rgba(191,149,63,0.5)' : 'none';
-                if (i === overlayIdx) t.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                if (i === overlayIdx) t.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             });
         }
     }
@@ -223,7 +223,7 @@
             kGrid.querySelectorAll('img').forEach((t, i) => {
                 t.style.border     = i === kaasuIdx ? '2px solid #bf953f' : '1px solid rgba(255,255,255,0.08)';
                 t.style.boxShadow  = i === kaasuIdx ? '0 0 10px rgba(191,149,63,0.5)' : 'none';
-                if (i === kaasuIdx) t.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                if (i === kaasuIdx) t.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             });
         }
     }
