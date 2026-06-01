@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imperial Jimikki Heritage Catalog Explorer | AD JEWELS</title>
+    <meta name="description" content="Explore 102 historic design variations of traditional Tamil classical Jimikki earrings inside our high-fidelity split-sidebar catalog explorer.">
+
+    <!-- Google Fonts for Premium Royal Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Outfit:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Standard CSS Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="subpage-active" style="background: #050505; color: #fff; font-family: 'Outfit', sans-serif; overflow: hidden; height: 100vh; display: flex; flex-direction: column;">
+
+    <!-- Luxury Top Header Bar -->
+    <header style="background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(191,149,63,0.15); padding: 1rem 2rem; z-index: 1000; width: 100%; display: flex; align-items: center; justify-content: space-between; height: 70px; flex-shrink: 0;">
+        <button onclick="goBackToGallery()" class="back-home-link" style="background: none; border: none; color: var(--text-gold); font-size: 0.85rem; font-weight: 500; text-decoration: none; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s ease; cursor: pointer; font-family: 'Outfit', sans-serif;">
+            <span style="font-size: 1.1rem; line-height: 1;">←</span> Back to Masterpieces
+        </button>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <img src="logo.png" alt="AD JEWELS Logo" style="height: 36px; width: auto; object-fit: contain; border-radius: 50%;">
+            <span style="font-family: 'Cinzel Decorative', serif; color: var(--text-gold); font-weight: 700; letter-spacing: 0.1em; font-size: 1.1rem;">AD JEWELS</span>
+        </div>
+        <!-- Spacer for desktop alignment -->
+        <div style="width: 150px; display: none;" class="desktop-spacer"></div>
+    </header>
+
+    <!-- Subpage Split Sidebar Explorer Layout Wrapper -->
+    <main style="display: flex; width: 100%; flex: 1; overflow: hidden; background: #050505;">
+        
+        <!-- Left Sidebar: 102 Reference Thumbnails (Vertically Scrollable) -->
+        <aside class="sidebar-thumbnails" style="width: 320px; border-right: 1px solid rgba(191,149,63,0.15); background: #0a0a0a; display: flex; flex-direction: column; flex-shrink: 0; height: 100%;">
+            <div style="padding: 1.25rem; border-bottom: 1px solid rgba(191,149,63,0.1); background: rgba(0,0,0,0.3);">
+                <span style="color: var(--text-gold); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 0.15rem;">Heritage References</span>
+                <h3 style="font-family: 'Cinzel Decorative', serif; font-size: 1rem; color: #fff; margin: 0; font-weight: 700;">Jimikki Archive (102)</h3>
+            </div>
+            
+            <div id="archiveCatalogGrid" class="sidebar-thumb-grid" style="flex: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 1.25rem;">
+                <!-- Javascript will dynamically inject all 102 thumbs here -->
+            </div>
+        </aside>
+
+        <!-- Right Screen: Large Image Showcase Viewport -->
+        <section class="showcase-canvas" style="flex: 1; position: relative; background: #000; display: flex; justify-content: center; align-items: center; padding: 2rem; height: 100%; overflow: hidden;">
+            
+            <button class="gallery-nav-btn prev" id="btnPrevArchive" type="button" aria-label="Previous Design" style="width: 45px; height: 45px; font-size: 1.8rem; left: 24px;">‹</button>
+            <img id="imgArchiveDisplay" class="gallery-preview-img" src="" alt="Selected Design Reference" style="max-width: 90%; max-height: 90%; object-fit: contain; transition: opacity 0.2s ease-in-out; display: block;">
+            <button class="gallery-nav-btn next" id="btnNextArchive" type="button" aria-label="Next Design" style="width: 45px; height: 45px; font-size: 1.8rem; right: 24px;">›</button>
+
+            <!-- Dynamic Info & Selection overlays -->
+            <div style="position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.85); border: 1px solid rgba(191,149,63,0.3); border-radius: 6px; padding: 1rem 1.5rem; text-align: center; backdrop-filter: blur(10px); z-index: 10; display: flex; flex-direction: column; gap: 0.5rem; min-width: 300px; box-shadow: 0 5px 20px rgba(0,0,0,0.6);">
+                <span style="font-size: 0.65rem; color: var(--text-gold); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;">Selected Design Reference</span>
+                <strong id="archiveRefName" style="color: #fff; font-size: 0.85rem; font-weight: 500;">Loading reference...</strong>
+                <span id="archiveCounter" style="color: var(--text-muted); font-size: 0.7rem; font-weight: 300; margin: -0.15rem 0 0.25rem 0;">1 / 102</span>
+                
+                <!-- Premium Add to My Vault Button -->
+                <button type="button" id="btnAddToVault" style="background: var(--text-gold); color: #000; border: none; padding: 0.5rem 1rem; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.25s ease; box-shadow: 0 0 8px rgba(191,149,63,0.3);">
+                    ✦ Add to my Vault ✦
+                </button>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Back navigation: go directly to index.html and scroll to #gallery -->
+    <script>
+        function goBackToGallery() {
+            // Set flag so index.html's pageshow listener can scroll to gallery
+            sessionStorage.setItem('scrollToSection', 'gallery');
+            // Navigate directly — reliable on all browsers, no bfcache dependency
+            window.location.href = 'index.html#gallery';
+        }
+    </script>
+
+    <!-- Import JavaScript controller -->
+    <script src="app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "ad-jewels-backend",
+  "version": "1.0.0",
+  "description": "Premium Full-Stack Backend for AD JEWELS 3D Showroom",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
