@@ -695,7 +695,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     phone: phoneVal,
                     date: dateVal,
                     design: designVal,
-                    notes: finalNotes
+                    notes: finalNotes,
+                    source: 'Bespoke Concierge Form'
                 })
             })
             .then(res => res.json())
@@ -811,6 +812,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const notesVal = document.getElementById('bookingNotes').value;
             const designVal = document.getElementById('bookingDesign').value;
             const dateVal = document.getElementById('bookingDate').value;
+            const timeVal = document.getElementById('bookingTime').value;
 
             const submitBtn = bookingForm.querySelector('button[type="submit"]');
             const origBtnText = submitBtn.textContent;
@@ -827,8 +829,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     email: emailVal,
                     phone: phoneVal,
                     date: dateVal,
+                    time: timeVal,
                     design: designVal,
-                    notes: notesVal
+                    notes: notesVal,
+                    source: 'Book Consultation Modal'
                 })
             })
             .then(res => res.json())

@@ -30,6 +30,318 @@ if (!fs.existsSync(USERS_FILE)) {
     fs.writeFileSync(USERS_FILE, JSON.stringify([], null, 2), 'utf-8');
 }
 
+// ==========================================================================
+// Nodemailer Config & Safe Fallback Setup
+// ==========================================================================
+const nodemailer = require('nodemailer');
+const EMAIL_LOGS_FILE = path.join(DATA_DIR, 'email_logs.json');
+
+if (!fs.existsSync(EMAIL_LOGS_FILE)) {
+    fs.writeFileSync(EMAIL_LOGS_FILE, JSON.stringify([], null, 2), 'utf-8');
+}
+
+// Config variables (resolving from file or process environment variables)
+const EMAIL_CONFIG_FILE = path.join(DATA_DIR, 'email_config.json');
+let EMAIL_USER = process.env.EMAIL_USER || 'adjewellery226@gmail.com';
+let EMAIL_PASS = process.env.EMAIL_PASS || '';
+
+if (fs.existsSync(EMAIL_CONFIG_FILE)) {
+    try {
+        const configData = JSON.parse(fs.readFileSync(EMAIL_CONFIG_FILE, 'utf-8'));
+        if (configData.EMAIL_USER && configData.EMAIL_USER !== 'adjewellery226@gmail.com') {
+            EMAIL_USER = configData.EMAIL_USER;
+        }
+        if (configData.EMAIL_PASS && configData.EMAIL_PASS !== 'PASTE_YOUR_16_CHARACTER_GMAIL_APP_PASSWORD_HERE') {
+            EMAIL_PASS = configData.EMAIL_PASS;
+        }
+    } catch (err) {
+        console.error('[EMAIL CONFIG ERROR] Failed to parse email_config.json:', err);
+    }
+}
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: EMAIL_USER,
+        pass: EMAIL_PASS
+    }
+});
+
+/**
+ * Saves fallback email log for secure local developer verification
+ */
+function saveFallbackEmailLog(bookingDetails, subject, status) {
+    try {
+        const logsData = fs.readFileSync(EMAIL_LOGS_FILE, 'utf-8');
+        const logs = JSON.parse(logsData);
+        logs.push({
+            timestamp: new Date().toISOString(),
+            status: status,
+            recipient: 'adjewellery226@gmail.com',
+            subject: subject,
+            bookingId: bookingDetails.id,
+            details: bookingDetails
+        });
+        fs.writeFileSync(EMAIL_LOGS_FILE, JSON.stringify(logs, null, 2), 'utf-8');
+        console.log(`[EMAIL LOGGED] Fallback log generated in data/email_logs.json for booking ID: ${bookingDetails.id}`);
+    } catch (e) {
+        console.error('[EMAIL ERROR] Failed to write fallback email log:', e);
+    }
+}
+
+/**
+ * Dispatches beautiful, Chola/Pandya golden-themed HTML email to adjewellery226@gmail.com
+ */
+function sendBookingEmail(bookingDetails) {
+    const recipient = 'adjewellery226@gmail.com';
+    const formType = bookingDetails.source || 'Bespoke Creation & Consultation Inquiry';
+    const subject = `✦ AD JEWELS - New ${formType} Request [${bookingDetails.id}] ✦`;
+
+    // Dynamic config reload on demand!
+    let activeUser = process.env.EMAIL_USER || 'adjewellery226@gmail.com';
+    let activePass = process.env.EMAIL_PASS || '';
+
+    if (fs.existsSync(EMAIL_CONFIG_FILE)) {
+        try {
+            const configData = JSON.parse(fs.readFileSync(EMAIL_CONFIG_FILE, 'utf-8'));
+            if (configData.EMAIL_USER && configData.EMAIL_USER !== 'adjewellery226@gmail.com') {
+                activeUser = configData.EMAIL_USER;
+            }
+            if (configData.EMAIL_PASS && configData.EMAIL_PASS !== 'PASTE_YOUR_16_CHARACTER_GMAIL_APP_PASSWORD_HERE') {
+                activePass = configData.EMAIL_PASS;
+            }
+        } catch (err) {
+            console.error('[EMAIL CONFIG ERROR] Failed to parse email_config.json on-demand:', err);
+        }
+    }
+
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body {
+                font-family: 'Outfit', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                background-color: #0c0a09;
+                color: #e7e5e4;
+                margin: 0;
+                padding: 0;
+                -webkit-font-smoothing: antialiased;
+            }
+            .wrapper {
+                background-color: #0c0a09;
+                padding: 40px 20px;
+            }
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                background-color: #171515;
+                border: 1px solid rgba(191, 149, 63, 0.2);
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            }
+            .header {
+                background: linear-gradient(135deg, #171515, #0c0a09);
+                padding: 30px;
+                text-align: center;
+                border-bottom: 1px solid rgba(191, 149, 63, 0.15);
+            }
+            .logo-text {
+                font-family: 'Cinzel', serif;
+                font-size: 24px;
+                color: #bf953f;
+                letter-spacing: 0.1em;
+                margin: 0;
+                text-transform: uppercase;
+                font-weight: bold;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+            }
+            .logo-sub {
+                font-size: 10px;
+                color: #a8a29e;
+                letter-spacing: 0.2em;
+                text-transform: uppercase;
+                margin-top: 5px;
+            }
+            .content {
+                padding: 40px 30px;
+            }
+            .title-badge {
+                display: inline-block;
+                background-color: rgba(191, 149, 63, 0.1);
+                border: 1px solid #bf953f;
+                color: #bf953f;
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+                padding: 6px 12px;
+                border-radius: 20px;
+                margin-bottom: 25px;
+                font-weight: 600;
+            }
+            .headline {
+                font-size: 20px;
+                color: #f5f5f4;
+                margin: 0 0 10px 0;
+                font-weight: 500;
+                line-height: 1.4;
+            }
+            .ref-code {
+                font-size: 14px;
+                color: #a8a29e;
+                margin-bottom: 30px;
+            }
+            .ref-code strong {
+                color: #bf953f;
+            }
+            .details-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 30px;
+            }
+            .details-table th, .details-table td {
+                padding: 14px 10px;
+                text-align: left;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            }
+            .details-table th {
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: #a8a29e;
+                width: 30%;
+                font-weight: 600;
+            }
+            .details-table td {
+                font-size: 14px;
+                color: #e7e5e4;
+                font-weight: 300;
+            }
+            .notes-box {
+                background-color: rgba(255, 255, 255, 0.02);
+                border: 1px dashed rgba(191, 149, 63, 0.25);
+                border-radius: 6px;
+                padding: 20px;
+                margin-top: 10px;
+            }
+            .notes-title {
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: #bf953f;
+                margin-bottom: 8px;
+                font-weight: 600;
+            }
+            .notes-text {
+                font-size: 14px;
+                color: #d6d3d1;
+                line-height: 1.6;
+                margin: 0;
+                white-space: pre-wrap;
+            }
+            .footer {
+                background-color: #0c0a09;
+                padding: 25px 30px;
+                text-align: center;
+                border-top: 1px solid rgba(191, 149, 63, 0.15);
+            }
+            .footer-text {
+                font-size: 11px;
+                color: #78716c;
+                line-height: 1.5;
+                margin: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrapper">
+            <div class="container">
+                <div class="header">
+                    <div class="logo-text">AD JEWELS</div>
+                    <div class="logo-sub">Heritage Temple Craftsmanship</div>
+                </div>
+                <div class="content">
+                    <span class="title-badge">${formType}</span>
+                    <h2 class="headline">New Luxury Inquiry Received</h2>
+                    <div class="ref-code">Reference Code: <strong>${bookingDetails.id}</strong></div>
+                    
+                    <table class="details-table">
+                        <tr>
+                            <th>Patron Name</th>
+                            <td>${bookingDetails.name}</td>
+                        </tr>
+                        <tr>
+                            <th>Email Address</th>
+                            <td><a href="mailto:${bookingDetails.email}" style="color: #bf953f; text-decoration: none;">${bookingDetails.email}</a></td>
+                        </tr>
+                        <tr>
+                            <th>Phone Number</th>
+                            <td><a href="tel:${bookingDetails.phone}" style="color: #bf953f; text-decoration: none;">${bookingDetails.phone}</a></td>
+                        </tr>
+                        <tr>
+                            <th>Preferred Date</th>
+                            <td>${bookingDetails.date}</td>
+                        </tr>
+                        ${bookingDetails.time ? `
+                        <tr>
+                            <th>Preferred Time</th>
+                            <td>${bookingDetails.time}</td>
+                        </tr>
+                        ` : ''}
+                        <tr>
+                            <th>Collection</th>
+                            <td style="text-transform: capitalize; font-weight: bold; color: #bf953f;">${bookingDetails.design}</td>
+                        </tr>
+                    </table>
+
+                    ${bookingDetails.notes ? `
+                    <div class="notes-box">
+                        <div class="notes-title">Bespoke Request & Special Instructions</div>
+                        <p class="notes-text">${bookingDetails.notes}</p>
+                    </div>
+                    ` : ''}
+                </div>
+                <div class="footer">
+                    <p class="footer-text">© 2026 AD JEWELS Heritage Ltd. All rights reserved.</p>
+                    <p class="footer-text" style="margin-top: 5px;">Kanniyakumari District, Tamil Nadu, India.</p>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+    `;
+
+    if (activePass) {
+        const mailOptions = {
+            from: `"AD JEWELS Concierge" <${activeUser}>`,
+            to: recipient,
+            replyTo: bookingDetails.email, // Let replies go directly to the client's email address!
+            subject: subject,
+            html: htmlContent
+        };
+        const activeTransporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: activeUser,
+                pass: activePass
+            }
+        });
+        activeTransporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error('[EMAIL ERROR] Failed to send live notification:', error);
+                saveFallbackEmailLog(bookingDetails, subject, 'FAILED_SEND: ' + error.message);
+            } else {
+                console.log('[EMAIL SUCCESS] Live email notification dispatched:', info.response);
+            }
+        });
+    } else {
+        console.warn('[EMAIL WARNING] SMTP credentials not fully configured (EMAIL_PASS is missing). Saving fallback email log.');
+        saveFallbackEmailLog(bookingDetails, subject, 'PENDING_CONFIG');
+    }
+}
+
 // 1. Parse JSON body payloads safely
 app.use(express.json({ limit: '10kb' })); // Imposes strict payload size limit against DOS attacks
 
@@ -74,7 +386,7 @@ app.use(express.static(__dirname));
    ========================================================================== */
 app.post('/api/bookings', (req, res) => {
     try {
-        const { name, email, phone, date, design, notes } = req.body;
+        const { name, email, phone, date, time, design, notes, source } = req.body;
 
         // --- Server-side Input Validation & Sanitization ---
         if (!name || !email || !phone || !date || !design) {
@@ -86,6 +398,8 @@ app.post('/api/bookings', (req, res) => {
         const cleanEmail = email.replace(/[<>]/g, '').trim();
         const cleanPhone = phone.replace(/[^\d+-\s]/g, '').trim(); // Strip non-phone symbols
         const cleanNotes = notes ? notes.replace(/[<>]/g, '').trim() : '';
+        const cleanSource = source ? source.replace(/[<>]/g, '').trim() : 'Bespoke Creation & Consultation Inquiry';
+        const cleanTime = time ? time.replace(/[<>]/g, '').trim() : '';
 
         // Enforce strict regex formats
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -103,13 +417,19 @@ app.post('/api/bookings', (req, res) => {
             return res.status(400).json({ error: 'Invalid collection selected.' });
         }
 
-        // Generate unique, unpredictable booking reference code
-        const randomId = Math.floor(1000 + Math.random() * 9000);
-        const refCode = `AD-${randomId}-26`;
-
-        // Read and write atomically using blocking fs operations
+        // Read existing bookings to prevent collisions and determine sequential suffix
         const bookingsData = fs.readFileSync(BOOKINGS_FILE, 'utf-8');
         const bookings = JSON.parse(bookingsData);
+
+        // Generate a guaranteed unique and dynamic booking reference code for each registration
+        let refCode;
+        let isDuplicate = true;
+        while (isDuplicate) {
+            const randomId = Math.floor(1000 + Math.random() * 9000);
+            const nextSeq = bookings.length + 1;
+            refCode = `AD-${randomId}-${nextSeq}-26`;
+            isDuplicate = bookings.some(b => b.id === refCode);
+        }
 
         const newBooking = {
             id: refCode,
@@ -117,18 +437,22 @@ app.post('/api/bookings', (req, res) => {
             email: cleanEmail,
             phone: cleanPhone,
             date: date,
+            time: cleanTime,
             design: design,
             notes: cleanNotes,
+            source: cleanSource,
             createdAt: new Date().toISOString()
         };
 
         bookings.push(newBooking);
         fs.writeFileSync(BOOKINGS_FILE, JSON.stringify(bookings, null, 2), 'utf-8');
 
-        // Apply PII Masking before echoing details in response to client
-        const maskedName = cleanName.charAt(0) + '*'.repeat(Math.max(3, cleanName.length - 2)) + cleanName.slice(-1);
-        const emailParts = cleanEmail.split('@');
-        const maskedEmail = emailParts[0].charAt(0) + '***@' + emailParts[1];
+        // Dispatches beautifully styled notification email to adjewellery226@gmail.com
+        sendBookingEmail(newBooking);
+
+        // Return full details to client (unmasked)
+        const maskedName = cleanName;
+        const maskedEmail = cleanEmail;
 
         res.status(201).json({
             success: true,
@@ -181,6 +505,7 @@ app.post('/api/bookings/lookup', (req, res) => {
                 email: match.email,
                 phone: match.phone,
                 date: match.date,
+                time: match.time || '',
                 design: match.design,
                 notes: match.notes,
                 createdAt: match.createdAt

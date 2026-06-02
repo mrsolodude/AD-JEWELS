@@ -1075,6 +1075,8 @@ a {
 }
 
 .luxury-input {
+    width: 100%;
+    box-sizing: border-box;
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid var(--border-glass);
     border-radius: 4px;
@@ -1439,6 +1441,14 @@ a {
     grid-template-columns: 1fr;
 }
 
+/* Stack rows on all tablet and mobile screen dimensions */
+@media (max-width: 991px) {
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+}
+
 .form-group {
     display: flex;
     flex-direction: column;
@@ -1454,6 +1464,8 @@ a {
 }
 
 .luxury-select {
+    width: 100%;
+    box-sizing: border-box;
     background: #0e0e12;
     border: 1px solid var(--border-glass);
     border-radius: 4px;

@@ -1,3 +1,6 @@
 node_modules/
 .DS_Store
 *.log
+data/email_config.json
+data/email_logs.json
+data/bookings.json
