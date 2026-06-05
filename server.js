@@ -412,7 +412,7 @@ app.post('/api/bookings', (req, res) => {
             return res.status(400).json({ error: 'Invalid date format. Expected YYYY-MM-DD.' });
         }
 
-        const allowedDesigns = ['jimikki', 'kasumalai', 'vanki', 'mangamalai', 'oddiyanam', 'nethichutti', 'mookuthi', 'valayal', 'thusi', 'Stud', 'Kolusu'];
+        const allowedDesigns = ['jimikki', 'kasumalai', 'vanki', 'mangamalai', 'oddiyanam', 'nethichutti', 'mookuthi', 'valayal', 'kaapu', 'ring', 'chain', 'rutraksha', 'thusi', 'Stud', 'Kolusu', 'Bracelet'];
         if (!allowedDesigns.includes(design)) {
             return res.status(400).json({ error: 'Invalid collection selected.' });
         }
@@ -619,7 +619,7 @@ app.post('/api/orders', (req, res) => {
         }
 
         // Allow-list checks
-        const allowedProducts = ['jimikki', 'kasumalai', 'vanki', 'mangamalai', 'oddiyanam', 'nethichutti', 'mookuthi', 'valayal', 'thusi', 'Stud', 'Kolusu'];
+        const allowedProducts = ['jimikki', 'kasumalai', 'vanki', 'mangamalai', 'oddiyanam', 'nethichutti', 'mookuthi', 'valayal', 'kaapu', 'ring', 'chain', 'rutraksha', 'thusi', 'Stud', 'Kolusu', 'Bracelet'];
         const allowedMetals = ['antique', 'yellow', 'rose', 'platinum'];
         const allowedGems = ['ruby', 'emerald', 'diamond', 'sapphire'];
 

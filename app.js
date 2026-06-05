@@ -317,12 +317,149 @@
 
 }());
 
+/* ==========================================================================
+   VANKI ARMLET HERITAGE CATALOG — IN-PAGE OVERLAY CONTROLLER
+   ========================================================================== */
+(function () {
+    'use strict';
+
+    const vankiArchives = [
+        "1.jpg","2.jpg","3.jpg","4.jpg","5.jpg","6.jpg","7.jpg","8.jpg","9.jpg","10.jpg",
+        "11.jpg","12.jpg","13.jpg","14.jpg","15.jpg","16.jpg","17.jpg","19.jpg","20.jpg",
+        "21.jpg","22.jpg","23.jpg","24.jpg","25.jpg","26.jpg","27.jpg","28.jpg","29.jpg","30.jpg",
+        "31.jpg","32.jpg","33.jpg","34.jpg","35.jpg","36.jpg","37.jpg","38.jpg","39.jpg","40.jpg",
+        "41.jpg","42.jpg","43.jpg","44.jpg","45.jpg","46.jpg","47.jpg","48.jpg","49.jpg","50.jpg",
+        "51.jpg","52.jpg","53.jpg","54.jpg","55.jpg","56.jpg","57.jpg","58.jpg","59.jpg","60.jpg",
+        "61.jpg","62.jpg","63.jpg","64.jpg"
+    ];
+    const VANKI_DIR = './armlet/';
+
+    let vankiIdx = 0;
+    let vankiReady = false;
+    let vOverlay, vGrid, vImg, vBtnPrev, vBtnNext, vRefName, vCounter, vBtnVault, vBtnBack;
+
+    function vResolve() {
+        vOverlay  = document.getElementById('vankiCatalogOverlay');
+        vGrid     = document.getElementById('vankiCatalogGrid');
+        vImg      = document.getElementById('vankiImgDisplay');
+        vBtnPrev  = document.getElementById('vankiBtnPrev');
+        vBtnNext  = document.getElementById('vankiBtnNext');
+        vRefName  = document.getElementById('vankiRefName');
+        vCounter  = document.getElementById('vankiCounter');
+        vBtnVault = document.getElementById('vankiBtnVault');
+        vBtnBack  = document.getElementById('btnVankiBack');
+    }
+
+    function vShow(idx) {
+        vankiIdx = (idx + vankiArchives.length) % vankiArchives.length;
+        const src = VANKI_DIR + vankiArchives[vankiIdx];
+
+        const mainEl = vOverlay ? vOverlay.querySelector('.catalog-main') : null;
+        if (mainEl && window.innerWidth <= 768) {
+            mainEl.classList.add('showcase-active');
+        }
+
+        if (vImg) {
+            vImg.style.opacity = '0';
+            setTimeout(() => { vImg.src = src; vImg.style.opacity = '1'; }, 130);
+        }
+        if (vRefName) vRefName.textContent = 'Vanki Armlet Design #' + (vankiIdx + 1);
+        if (vCounter) vCounter.textContent  = (vankiIdx + 1) + ' / ' + vankiArchives.length;
+        if (vGrid) {
+            vGrid.querySelectorAll('img').forEach((t, i) => {
+                t.style.border     = i === vankiIdx ? '2px solid #bf953f' : '1px solid rgba(255,255,255,0.08)';
+                t.style.boxShadow  = i === vankiIdx ? '0 0 10px rgba(191,149,63,0.5)' : 'none';
+                if (i === vankiIdx) t.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            });
+        }
+    }
+
+    function vBuildGrid() {
+        if (!vGrid || vankiReady) return;
+        vankiReady = true;
+        vGrid.innerHTML = '';
+        vankiArchives.forEach((file, idx) => {
+            const img = document.createElement('img');
+            img.src     = VANKI_DIR + file;
+            img.alt     = 'Vanki Armlet #' + (idx + 1);
+            img.loading = 'lazy';
+            img.style.cssText = 'width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;border-radius:4px;cursor:pointer;transition:all 0.2s;border:1px solid rgba(255,255,255,0.08);background:#111';
+            img.addEventListener('click', () => vShow(idx));
+            vGrid.appendChild(img);
+        });
+    }
+
+    window.openVankiCatalog = function () {
+        vResolve();
+        if (!vOverlay) return;
+        vBuildGrid();
+        vShow(vankiIdx);
+        vOverlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        if (!vOverlay.dataset.wired) {
+            vOverlay.dataset.wired = '1';
+            vBtnBack.addEventListener('click',  window.closeVankiCatalog);
+            vBtnPrev.addEventListener('click',  () => vShow(vankiIdx - 1));
+            vBtnNext.addEventListener('click',  () => vShow(vankiIdx + 1));
+
+            document.addEventListener('keydown', e => {
+                if (vOverlay.style.display !== 'flex') return;
+                if (e.key === 'ArrowLeft')  vShow(vankiIdx - 1);
+                if (e.key === 'ArrowRight') vShow(vankiIdx + 1);
+                if (e.key === 'Escape')     window.closeVankiCatalog();
+            });
+
+            // Swipe on canvas section
+            const canvas = vOverlay.querySelector('section');
+            if (canvas) {
+                let sx = 0;
+                canvas.addEventListener('touchstart', e => { sx = e.changedTouches[0].screenX; }, { passive: true });
+                canvas.addEventListener('touchend',   e => {
+                    const dx = e.changedTouches[0].screenX - sx;
+                    if (Math.abs(dx) > 50) vShow(vankiIdx + (dx < 0 ? 1 : -1));
+                }, { passive: true });
+            }
+
+            vBtnVault.addEventListener('click', () => {
+                const file = vankiArchives[vankiIdx];
+                const cart = JSON.parse(localStorage.getItem('ad_jewels_cart') || '[]');
+                cart.push({
+                    id:     Date.now() + Math.random().toString(36).substr(2, 5),
+                    design: 'vanki',
+                    name:   'Vanki Armlet',
+                    specs:  'Purity: 22K Antique Gold | Est. Weight: 78.5g | Accents: Peacock engravings & Colombian emeralds',
+                    notes:  '[Reference Photo: ' + file + ']',
+                    image:  VANKI_DIR + file
+                });
+                localStorage.setItem('ad_jewels_cart', JSON.stringify(cart));
+                const orig = vBtnVault.textContent;
+                vBtnVault.textContent = '\u2726 Added to Vault! \u2726';
+                vBtnVault.style.background = '#fcf6ba';
+                setTimeout(() => { vBtnVault.textContent = orig; vBtnVault.style.background = '#bf953f'; }, 2000);
+            });
+        }
+    };
+
+    window.closeVankiCatalog = function () {
+        vResolve();
+        if (!vOverlay) return;
+        vOverlay.style.display = 'none';
+        document.body.style.overflow = '';
+        const gallery = document.getElementById('gallery');
+        if (gallery) setTimeout(() => gallery.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+    };
+
+}());
+
 document.addEventListener('DOMContentLoaded', () => {
     'use strict';
 
     // Application state
     const state = {
         activeProduct: 'jimikki',
+        activeProductName: 'Jimikki Earrings',
+        activeProductSpecs: 'Purity: 22K Yellow Gold | Accents: Kemp Rubies & Diamonds',
         isPlayingSound: false
     };
 
@@ -392,6 +529,44 @@ document.addEventListener('DOMContentLoaded', () => {
        3. MASTERPIECE CATALOG & IMPERIAL CONCIERGE SYNC & HERITAGE ARCHIVE GALLERY
        ========================================================================== */
     const catalogItems = document.querySelectorAll('.catalog-item');
+    const galleryTabBtns = document.querySelectorAll('.gallery-tab-btn');
+
+    if (galleryTabBtns.length > 0) {
+        galleryTabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const category = btn.getAttribute('data-category');
+
+                // Update active tab styling
+                galleryTabBtns.forEach(b => {
+                    b.classList.remove('active');
+                    b.style.color = 'var(--text-muted)';
+                    const indicator = b.querySelector('.tab-indicator');
+                    if (indicator) indicator.style.transform = 'scaleX(0)';
+                });
+                btn.classList.add('active');
+                btn.style.color = 'var(--text-gold)';
+                const ind = btn.querySelector('.tab-indicator');
+                if (ind) ind.style.transform = 'scaleX(1)';
+
+                // Filter items
+                let firstVisible = null;
+                catalogItems.forEach(item => {
+                    const itemCat = item.getAttribute('data-item-category') || 'women';
+                    if (itemCat === category) {
+                        item.style.display = 'flex';
+                        if (!firstVisible) firstVisible = item;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                // Trigger active item click on tab switch to sync the concierge form
+                if (firstVisible) {
+                    firstVisible.click();
+                }
+            });
+        });
+    }
     const conciergeDesign = document.getElementById('conciergeDesign');
     const conciergeForm = document.getElementById('conciergeForm');
     const conciergeSuccessScreen = document.getElementById('conciergeSuccessScreen');
@@ -583,14 +758,6 @@ document.addEventListener('DOMContentLoaded', () => {
         item.addEventListener('click', () => {
             const targetProduct = item.getAttribute('data-product-info');
             
-            // Jimikki and Kaasu Maalai open their catalog overlays via dedicated buttons inside the card
-            // The card click just sets the active selection state — no page redirect needed
-            if (targetProduct === 'jimikki' || targetProduct === 'kasumalai') {
-                // Fall through to set active state below
-            } else {
-                // For non-catalog items, just fall through to the active state logic below
-            }
-
             // Remove active class from all items
             catalogItems.forEach(i => {
                 i.classList.remove('active');
@@ -605,6 +772,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Sync design dropdown selection
             state.activeProduct = targetProduct;
+            
+            const nameEl = item.querySelector('.catalog-item-name');
+            const specEl = item.querySelector('.catalog-item-spec');
+            if (nameEl) state.activeProductName = nameEl.textContent;
+            if (specEl) state.activeProductSpecs = specEl.textContent;
 
             if (conciergeDesign && targetProduct) {
                 conciergeDesign.value = targetProduct;
@@ -920,16 +1092,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const time = audioContext.currentTime;
 
-        // Mohanam scales: classical pentatonic raga notes (C, D, E, G, A)
-        const scaleFreqs = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25];
-        const randomFreq = scaleFreqs[Math.floor(Math.random() * scaleFreqs.length)];
+        // Mayamalavagowla raga scale: classical heptatonic notes
+        // C4, Db4, E4, F4, G4, Ab4, B4, C5, Db5, E5, G5
+        const scaleFreqs = [261.63, 277.18, 329.63, 349.23, 392.00, 415.30, 493.88, 523.25, 554.37, 659.25, 783.99];
 
-        // Soft bell-like synth
+        if (state.lastMelodyIdx === undefined) {
+            state.lastMelodyIdx = 4; // Start on G4 (Panchamam)
+        }
+
+        // Stepped melodic random walk to mimic authentic classical phrasing (swara movement)
+        const steps = [-2, -1, 0, 1, 2];
+        const step = steps[Math.floor(Math.random() * steps.length)];
+        let nextIdx = state.lastMelodyIdx + step;
+
+        // Bounce back gracefully at scale boundaries
+        if (nextIdx < 0) {
+            nextIdx = Math.abs(nextIdx);
+        } else if (nextIdx >= scaleFreqs.length) {
+            nextIdx = scaleFreqs.length - 2 - (nextIdx - scaleFreqs.length);
+        }
+        state.lastMelodyIdx = nextIdx;
+
+        const randomFreq = scaleFreqs[nextIdx];
+        const prevFreq = state.lastMelodyFreq || randomFreq;
+        state.lastMelodyFreq = randomFreq;
+
+        // Soft bell/flute synth
         const osc = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
 
-        osc.type = 'triangle'; // Soft organic woodwind timbre
-        osc.frequency.setValueAtTime(randomFreq, time);
+        osc.type = 'triangle'; // Soft organic woodwind/triangle timbre
+        osc.frequency.setValueAtTime(prevFreq, time);
+        // Subtle slide (gamaka glide) from the previous note
+        osc.frequency.exponentialRampToValueAtTime(randomFreq, time + 0.25);
 
         gainNode.gain.setValueAtTime(0, time);
         gainNode.gain.linearRampToValueAtTime(0.06, time + 0.2); // Soft attack
@@ -1159,17 +1354,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const vaultRefCode = document.getElementById('vaultRefCode');
 
     const masterpieceSpecsDb = {
-        jimikki: "Purity: 22K Yellow Gold | Est. Weight: 42.5g | Accents: Kemp Rubies & Diamonds",
-        kasumalai: "Purity: 22K Antique Gold | Est. Weight: 125.0g | Accents: Lakshmi reliefs & Kemp Rubies",
-        vanki: "Purity: 22K Antique Gold | Est. Weight: 78.5g | Accents: Peacock engravings & Colombian emeralds",
-        mangamalai: "Purity: 22K Yellow Gold | Est. Weight: 98.0g | Accents: Recurved mango settings & Kemp gems",
-        oddiyanam: "Purity: 22K Yellow Gold | Est. Weight: 210.0g | Accents: Kemp Rubies & Carved Peacocks",
-        nethichutti: "Purity: 22K Gold Filigree | Est. Weight: 28.5g | Accents: Kemp Rubies & Natural Pearls",
-        mookuthi: "Purity: 22K Gold Setting | Est. Weight: 8.2g | Accents: Single Uncut Diamond & Kemp Rubies",
-        valayal: "Purity: 22K Antique Gold | Est. Weight: 64.0g | Accents: Kemp Emeralds & Rubies",
-        thusi: "Purity: 22K Gold Wirework | Est. Weight: 48.0g | Accents: Seed Pearls & Solitaire Diamonds",
-        Stud: "Purity: 22K Gold Stud | Est. Weight: 12.0g | Accents: Solitaire Diamonds",
-        Kolusu: "Purity: 22K Gold Wirework | Est. Weight: 38.0g | Accents: Dangling Gold Beads"
+        jimikki: "Purity: 22K Yellow Gold | Accents: Kemp Rubies & Diamonds",
+        kasumalai: "Purity: 22K Antique Gold | Accents: Lakshmi reliefs & Kemp Rubies",
+        vanki: "Purity: 22K Antique Gold | Accents: Peacock engravings & Colombian emeralds",
+        mangamalai: "Purity: 22K Yellow Gold | Accents: Recurved mango settings & Kemp gems",
+        oddiyanam: "Purity: 22K Yellow Gold | Accents: Kemp Rubies & Carved Peacocks",
+        nethichutti: "Purity: 22K Gold Filigree | Accents: Kemp Rubies & Natural Pearls",
+        mookuthi: "Purity: 22K Gold Setting | Accents: Single Uncut Diamond & Kemp Rubies",
+        valayal: "Purity: 22K Antique Gold | Accents: Kemp Emeralds & Rubies",
+        kaapu: "Purity: 22K Antique Gold | Accents: Carved Lion terminals & Ruby eyes",
+        ring: "Purity: 22K Yellow Gold | Accents: Royal Peacock engraving",
+        chain: "Purity: 22K Antique Gold | Accents: Gold-chain",
+        rutraksha: "Purity: 22K Antique Gold | Accents: Gold cap plated rudraksha beads",
+        thusi: "Purity: 22K Gold Wirework | Accents: Seed Pearls & Solitaire Diamonds",
+        Stud: "Purity: 22K Gold Stud | Accents: Solitaire Diamonds",
+        Kolusu: "Purity: 22K Gold Wirework | Accents: Dangling Gold Beads",
+        Bracelet: "Purity: 22K Antique Gold | Accents: royal look"
     };
 
     const masterpieceNameDb = {
@@ -1181,9 +1381,14 @@ document.addEventListener('DOMContentLoaded', () => {
         nethichutti: "Chola Nethi Chutti",
         mookuthi: "Solitaire Mookuthi",
         valayal: "Divine Dancer Valayal",
+        kaapu: "Kaapu",
+        ring: "Kshatriya Signet Ring",
+        chain: "Chain",
+        rutraksha: "Rutraksha Maala",
         thusi: "Royal Thusi Choker",
         Stud: "Stud Earrings",
-        Kolusu: "Kolusu Anklet"
+        Kolusu: "Kolusu Anklet",
+        Bracelet: "Bracelet"
     };
 
     // Vault Cart & Tabs UI Elements
@@ -1311,6 +1516,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     itemImageSrc = 'vanki.png';
                 } else if (item.design === 'valayal') {
                     itemImageSrc = 'valayal.png';
+                } else if (item.design === 'kaapu') {
+                    itemImageSrc = 'kaapu.jpg';
+                } else if (item.design === 'ring') {
+                    itemImageSrc = 'ring.jpg';
+                } else if (item.design === 'chain') {
+                    itemImageSrc = 'chain.jpg';
+                } else if (item.design === 'rutraksha') {
+                    itemImageSrc = 'rutraksha.jpg';
+                } else if (item.design === 'oddiyanam') {
+                    itemImageSrc = 'oddiyanam.jpg';
+                } else if (item.design === 'mangamalai') {
+                    itemImageSrc = 'mangamalai.jpg';
+                } else if (item.design === 'mookuthi') {
+                    itemImageSrc = 'mookuthi.jpg';
+                } else if (item.design === 'Stud') {
+                    itemImageSrc = 'studs.jpg';
+                } else if (item.design === 'Bracelet') {
+                    itemImageSrc = 'Bracelet.jpg';
                 } else {
                     itemImageSrc = 'logo.png';
                 }
@@ -1504,22 +1727,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 finalNotes = `${finalNotes ? finalNotes + '\n' : ''}[Reference Photo: ${refPhoto}]`;
             }
 
-            const defaultImages = {
-                jimikki: "jimikki.png",
-                kasumalai: "kasumalai.png",
-                vanki: "vanki.png",
-                valayal: "valayal.png"
-            };
-            let itemImage = defaultImages[designVal] || "";
+            let itemImage = "";
             if (designVal === 'jimikki' && activeArchiveIdx !== undefined && jimikkiArchives[activeArchiveIdx]) {
                 itemImage = `./jimiki/${jimikkiArchives[activeArchiveIdx]}`;
+            } else {
+                const activeCard = document.querySelector('.catalog-item.active');
+                if (activeCard) {
+                    const cardImg = activeCard.querySelector('.catalog-item-icon img');
+                    if (cardImg) {
+                        itemImage = cardImg.getAttribute('src');
+                    }
+                }
+            }
+            if (!itemImage) {
+                const defaultImages = {
+                    jimikki: "jimikki.png",
+                    kasumalai: "kasumalai.png",
+                    vanki: "vanki.png",
+                    valayal: "valayal.png",
+                    kaapu: "kaapu.jpg",
+                    ring: "ring.jpg",
+                    chain: "chain.jpg",
+                    rutraksha: "rutraksha.jpg",
+                    oddiyanam: "oddiyanam.jpg",
+                    mangamalai: "mangamalai.jpg",
+                    mookuthi: "mookuthi.jpg",
+                    Stud: "studs.jpg",
+                    Bracelet: "Bracelet.jpg"
+                };
+                itemImage = defaultImages[designVal] || "logo.png";
             }
 
             const newItem = {
                 id: Date.now() + Math.random().toString(36).substr(2, 5),
                 design: designVal,
-                name: masterpieceNameDb[designVal] || designVal,
-                specs: masterpieceSpecsDb[designVal] || "Purity: 22K Gold | Est. Weight: Standard | Accents: Traditional",
+                name: state.activeProductName || masterpieceNameDb[designVal] || designVal,
+                specs: state.activeProductSpecs || masterpieceSpecsDb[designVal] || "Purity: 22K Gold | Est. Weight: Standard | Accents: Traditional",
                 notes: finalNotes,
                 image: itemImage
             };

@@ -1829,6 +1829,18 @@ a {
     margin: 0 auto;
 }
 
+/* Gallery Tabs Compartments */
+.gallery-tab-btn:hover {
+    color: var(--text-gold) !important;
+    text-shadow: 0 0 10px rgba(191, 149, 63, 0.4);
+}
+.gallery-tab-btn:hover .tab-indicator {
+    transform: scaleX(0.7) !important;
+}
+.gallery-tab-btn.active:hover .tab-indicator {
+    transform: scaleX(1) !important;
+}
+
 /* --- Curated Masterpiece Catalog Panel --- */
 .masterpiece-catalog-panel {
     background: var(--bg-glass);

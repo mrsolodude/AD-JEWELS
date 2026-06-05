@@ -297,15 +297,33 @@
             <div style="max-width: 900px; margin: 0 auto; width: 100%; padding: 0 1.5rem;">
                 <!-- Curated Masterpiece Catalog Panel (Left) -->
                 <div class="masterpiece-catalog-panel">
-                    <div class="catalog-header">
+                    <div class="catalog-header" style="margin-bottom: 1.5rem;">
                         <span class="catalog-tag">Curated Collections</span>
                         <h3 class="catalog-title">The Royal Masterpieces</h3>
                         <p class="catalog-subtitle">Click on any classical South Indian design to view estimated weight,
                             gold purity, and structural hallmarks.</p>
                     </div>
 
+                    <!-- Compartment Tabs -->
+                    <div class="gallery-tabs"
+                        style="display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 2rem; border-bottom: 1px solid rgba(191,149,63,0.15); padding-bottom: 1rem;">
+                        <button type="button" class="gallery-tab-btn active" data-category="women"
+                            style="background: none; border: none; color: var(--text-gold); font-family: 'Cinzel', serif; font-size: 1.05rem; font-weight: 600; letter-spacing: 0.08em; cursor: pointer; transition: all 0.3s; position: relative; padding: 0.5rem 1rem;">
+                            ✦ Girl / Women ✦
+                            <span class="tab-indicator"
+                                style="position: absolute; bottom: -1rem; left: 0; width: 100%; height: 2px; background: var(--text-gold); transition: transform 0.3s; transform: scaleX(1); transform-origin: center;"></span>
+                        </button>
+                        <button type="button" class="gallery-tab-btn" data-category="men"
+                            style="background: none; border: none; color: var(--text-muted); font-family: 'Cinzel', serif; font-size: 1.05rem; font-weight: 600; letter-spacing: 0.08em; cursor: pointer; transition: all 0.3s; position: relative; padding: 0.5rem 1rem;">
+                            ✦ Boy / Men ✦
+                            <span class="tab-indicator"
+                                style="position: absolute; bottom: -1rem; left: 0; width: 100%; height: 2px; background: var(--text-gold); transition: transform 0.3s; transform: scaleX(0); transform-origin: center;"></span>
+                        </button>
+                    </div>
+
                     <div class="catalog-grid">
-                        <div class="catalog-item active" data-product-info="jimikki"
+                        <!-- Girl / Women Items -->
+                        <div class="catalog-item active" data-product-info="jimikki" data-item-category="women"
                             style="display: flex; flex-direction: column; align-items: stretch; gap: 0.75rem;">
                             <div style="display: flex; align-items: center; gap: 1.25rem; width: 100%;">
                                 <span class="catalog-item-icon"
@@ -327,7 +345,8 @@
                                 Open Heritage Catalog (102 Designs) ➤
                             </button>
                         </div>
-                        <div class="catalog-item" data-product-info="kaasu maalai"
+
+                        <div class="catalog-item" data-product-info="kaasu maalai" data-item-category="women"
                             style="display: flex; flex-direction: column; align-items: stretch; gap: 0.75rem;">
                             <div style="display: flex; align-items: center; gap: 1.25rem; width: 100%;">
                                 <span class="catalog-item-icon"
@@ -337,9 +356,8 @@
                                 </span>
                                 <div class="catalog-item-details">
                                     <h4 class="catalog-item-name">Kaasu Maalai</h4>
-                                    <p class="catalog-item-spec">Purity: 22K Antique Gold | Est. Weight: 125.0g |
-                                        Accents:
-                                        Lakshmi reliefs &amp; Kemp Rubies</p>
+                                    <p class="catalog-item-spec">Purity: 22K Antique Gold |
+                                        Accents: Lakshmi reliefs &amp; Kemp Rubies</p>
                                     <span class="catalog-item-action">Select Masterpiece</span>
                                 </div>
                             </div>
@@ -351,46 +369,59 @@
                                 Open Kaasu Maalai Catalog (136 Designs) ➤
                             </button>
                         </div>
-                        <div class="catalog-item" data-product-info="vanki">
-                            <span class="catalog-item-icon"
-                                style="padding: 0; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                                <img src="vanki.png" alt="Vanki Armlet"
-                                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
-                            </span>
-                            <div class="catalog-item-details">
-                                <h4 class="catalog-item-name">Vanki Armlet</h4>
-                                <p class="catalog-item-spec">Purity: 22K Antique Gold | Est. Weight: 78.5g | Accents:
-                                    Emerald peacocks</p>
-                                <span class="catalog-item-action">Select Masterpiece</span>
+
+                        <div class="catalog-item" data-product-info="vanki" data-item-category="women"
+                            style="display: flex; flex-direction: column; align-items: stretch; gap: 0.75rem;">
+                            <div style="display: flex; align-items: center; gap: 1.25rem; width: 100%;">
+                                <span class="catalog-item-icon"
+                                    style="padding: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
+                                    <img src="vanki.png" alt="Vanki Armlet"
+                                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                </span>
+                                <div class="catalog-item-details">
+                                    <h4 class="catalog-item-name">Vanki Armlet</h4>
+                                    <p class="catalog-item-spec">Purity: 22K Antique Gold |
+                                        Accents: Emerald peacocks</p>
+                                    <span class="catalog-item-action">Select Masterpiece</span>
+                                </div>
                             </div>
+
+                            <!-- Open in-page Vanki Catalog Overlay (no reload) -->
+                            <button onclick="event.stopPropagation(); openVankiCatalog();" class="subpage-catalog-btn"
+                                style="display: block; width: 100%; text-align: center; margin-top: 0.5rem; padding: 0.65rem 1rem; background: rgba(191,149,63,0.1); border: 1px dashed var(--text-gold); border-radius: 4px; color: var(--text-gold); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; transition: all 0.25s ease; cursor: pointer; font-family: 'Outfit', sans-serif;">
+                                Open Vanki Catalog (63 Designs) ➤
+                            </button>
                         </div>
-                        <div class="catalog-item" data-product-info="mangamalai">
+
+                        <div class="catalog-item" data-product-info="maanga maalai" data-item-category="women">
                             <span class="catalog-item-icon"
                                 style="padding: 0; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                                <img src="kasumalai.png" alt="Manga Malai Choker"
+                                <img src="mangamalai.jpg" alt="Manga Malai Choker"
                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
                             </span>
                             <div class="catalog-item-details">
-                                <h4 class="catalog-item-name">Manga Malai Choker</h4>
-                                <p class="catalog-item-spec">Purity: 22K Yellow Gold | Est. Weight: 98.0g | Accents:
+                                <h4 class="catalog-item-name">Maanga Maalai Choker</h4>
+                                <p class="catalog-item-spec">Purity: 22K Yellow Gold | Accents:
                                     recurrent mango settings</p>
                                 <span class="catalog-item-action">Select Masterpiece</span>
                             </div>
                         </div>
-                        <div class="catalog-item" data-product-info="oddiyanam">
+
+                        <div class="catalog-item" data-product-info="oddiyanam" data-item-category="women">
                             <span class="catalog-item-icon"
                                 style="padding: 0; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                                <img src="valayal.png" alt="Gaja Lakshmi Oddiyanam"
+                                <img src="oddiyanam.jpg" alt="Gaja Lakshmi Oddiyanam"
                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
                             </span>
                             <div class="catalog-item-details">
                                 <h4 class="catalog-item-name">Gaja Lakshmi Oddiyanam</h4>
-                                <p class="catalog-item-spec">Purity: 22K Yellow Gold | Est. Weight: 210.0g | Accents:
+                                <p class="catalog-item-spec">Purity: 22K Yellow Gold | Accents:
                                     Kemp Rubies & Carved Peacocks</p>
                                 <span class="catalog-item-action">Select Masterpiece</span>
                             </div>
                         </div>
-                        <div class="catalog-item" data-product-info="nethichutti">
+
+                        <div class="catalog-item" data-product-info="nethichutti" data-item-category="women">
                             <span class="catalog-item-icon"
                                 style="padding: 0; overflow: hidden; display: flex; justify-content: center; align-items: center;">
                                 <img src="vanki.png" alt="Chola Nethi Chutti"
@@ -398,25 +429,27 @@
                             </span>
                             <div class="catalog-item-details">
                                 <h4 class="catalog-item-name">Chola Nethi Chutti</h4>
-                                <p class="catalog-item-spec">Purity: 22K Gold Filigree | Est. Weight: 28.5g | Accents:
+                                <p class="catalog-item-spec">Purity: 22K Gold Filigree | Accents:
                                     Kemp Rubies & Natural Pearls</p>
                                 <span class="catalog-item-action">Select Masterpiece</span>
                             </div>
                         </div>
-                        <div class="catalog-item" data-product-info="mookuthi">
+
+                        <div class="catalog-item" data-product-info="mookuthi" data-item-category="women">
                             <span class="catalog-item-icon"
                                 style="padding: 0; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                                <img src="vanki.png" alt="Solitaire Mookuthi"
+                                <img src="mookuthi.jpg" alt="Solitaire Mookuthi"
                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
                             </span>
                             <div class="catalog-item-details">
                                 <h4 class="catalog-item-name">Solitaire Mookuthi</h4>
-                                <p class="catalog-item-spec">Purity: 22K Gold Setting | Est. Weight: 8.2g | Accents:
+                                <p class="catalog-item-spec">Purity: 22K Gold Setting | Accents:
                                     Single Uncut Diamond & Kemp Rubies</p>
                                 <span class="catalog-item-action">Select Masterpiece</span>
                             </div>
                         </div>
-                        <div class="catalog-item" data-product-info="valayal">
+
+                        <div class="catalog-item" data-product-info="valayal" data-item-category="women">
                             <span class="catalog-item-icon"
                                 style="padding: 0; overflow: hidden; display: flex; justify-content: center; align-items: center;">
                                 <img src="valayal.png" alt="Divine Dancer Valayal"
@@ -424,12 +457,13 @@
                             </span>
                             <div class="catalog-item-details">
                                 <h4 class="catalog-item-name">Divine Dancer Valayal</h4>
-                                <p class="catalog-item-spec">Purity: 22K Antique Gold | Est. Weight: 64.0g | Accents:
+                                <p class="catalog-item-spec">Purity: 22K Antique Gold | Accents:
                                     Kemp Emeralds & Rubies</p>
                                 <span class="catalog-item-action">Select Masterpiece</span>
                             </div>
                         </div>
-                        <div class="catalog-item" data-product-info="thusi">
+
+                        <div class="catalog-item" data-product-info="thusi" data-item-category="women">
                             <span class="catalog-item-icon"
                                 style="padding: 0; overflow: hidden; display: flex; justify-content: center; align-items: center;">
                                 <img src="kasumalai.png" alt="Royal Thusi Choker"
@@ -437,8 +471,96 @@
                             </span>
                             <div class="catalog-item-details">
                                 <h4 class="catalog-item-name">Royal Thusi Choker</h4>
-                                <p class="catalog-item-spec">Purity: 22K Gold Wirework | Est. Weight: 48.0g | Accents:
+                                <p class="catalog-item-spec">Purity: 22K Gold Wirework | Accents:
                                     Seed Pearls & Solitaire Diamonds</p>
+                                <span class="catalog-item-action">Select Masterpiece</span>
+                            </div>
+                        </div>
+
+                        <!-- Boy / Men Items -->
+                        <div class="catalog-item" data-product-info="kaapu" data-item-category="men"
+                            style="display: none;">
+                            <span class="catalog-item-icon"
+                                style="padding: 0; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                                <img src="kaapu.jpg" alt="Kaapu"
+                                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                            </span>
+                            <div class="catalog-item-details">
+                                <h4 class="catalog-item-name">Kaapu</h4>
+                                <p class="catalog-item-spec">Purity: 22K Antique Gold | Accents:Carved Lion terminals &
+                                    Ruby eyes</p>
+                                <span class="catalog-item-action">Select Masterpiece</span>
+                            </div>
+                        </div>
+
+                        <div class="catalog-item" data-product-info="ring" data-item-category="men"
+                            style="display: none;">
+                            <span class="catalog-item-icon"
+                                style="padding: 0; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                                <img src="ring.jpg" alt="Kshatriya Signet Ring"
+                                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                            </span>
+                            <div class="catalog-item-details">
+                                <h4 class="catalog-item-name">Kshatriya Signet Ring</h4>
+                                <p class="catalog-item-spec">Purity: 22K Yellow Gold | Accents:Royal Peacock engraving
+                                </p>
+                                <span class="catalog-item-action">Select Masterpiece</span>
+                            </div>
+                        </div>
+
+                        <div class="catalog-item" data-product-info="chain" data-item-category="men"
+                            style="display: none;">
+                            <span class="catalog-item-icon"
+                                style="padding: 0; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                                <img src="chain.jpg" alt="Chain"
+                                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                            </span>
+                            <div class="catalog-item-details">
+                                <h4 class="catalog-item-name">Chain</h4>
+                                <p class="catalog-item-spec">Purity: 22K Antique Gold | Accents: Gold-chain</p>
+                                <span class="catalog-item-action">Select Masterpiece</span>
+                            </div>
+                        </div>
+
+                        <div class="catalog-item" data-product-info="rutraksha" data-item-category="men"
+                            style="display: none;">
+                            <span class="catalog-item-icon"
+                                style="padding: 0; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                                <img src="rutraksha.jpg" alt="Rutraksha Maala"
+                                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                            </span>
+                            <div class="catalog-item-details">
+                                <h4 class="catalog-item-name">Rutraksha Maala</h4>
+                                <p class="catalog-item-spec">Purity: 22K Antique Gold | Accents: Gold cap plated
+                                    rutraksha beeds</p>
+                                <span class="catalog-item-action">Select Masterpiece</span>
+                            </div>
+                        </div>
+
+                        <div class="catalog-item" data-product-info="studs" data-item-category="men"
+                            style="display: none;">
+                            <span class="catalog-item-icon"
+                                style="padding: 0; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                                <img src="studs.jpg" alt="Studs"
+                                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                            </span>
+                            <div class="catalog-item-details">
+                                <h4 class="catalog-item-name">Studs</h4>
+                                <p class="catalog-item-spec">Purity: 22K Antique Gold | Accents:small and large</p>
+                                <span class="catalog-item-action">Select Masterpiece</span>
+                            </div>
+                        </div>
+
+                        <div class="catalog-item" data-product-info="Bracelet" data-item-category="men"
+                            style="display: none;">
+                            <span class="catalog-item-icon"
+                                style="padding: 0; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                                <img src="Bracelet.jpg" alt="Bracelet"
+                                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                            </span>
+                            <div class="catalog-item-details">
+                                <h4 class="catalog-item-name">Bracelet</h4>
+                                <p class="catalog-item-spec">Purity: 22K Antique Gold | Accents: royal look </p>
                                 <span class="catalog-item-action">Select Masterpiece</span>
                             </div>
                         </div>
@@ -497,16 +619,20 @@
                                 <label for="conciergeDesign">Selected Masterpiece</label>
                                 <select id="conciergeDesign" class="luxury-select">
                                     <option value="jimikki">Jimikki (Earrings)</option>
-                                    <option value="kasumalai">Kasu Malai (Lakshmi Coin Necklace)</option>
+                                    <option value="kaasu maalai">Kaasu Maalai (Lakshmi Coin Necklace)</option>
                                     <option value="vanki">Vanki (Peacock Armlet ring)</option>
                                     <option value="mangamalai">Manga Malai (Mango Choker)</option>
                                     <option value="oddiyanam">Oddiyanam (Waist Belt)</option>
                                     <option value="nethichutti">Nethi Chutti (Maang Tikka)</option>
                                     <option value="mookuthi">Mookuthi (Nose Stud)</option>
                                     <option value="valayal">Valayal (Temple Bangle)</option>
+                                    <option value="kaapu">Kaapu (Men's Bangle)</option>
+                                    <option value="ring">Kshatriya Signet Ring</option>
+                                    <option value="rutraksha">Rutraksha Maala</option>
                                     <option value="thusi">Thusi (Royal Choker)</option>
                                     <option value="Stud">Stud (Earring)</option>
                                     <option value="Kolusu"> Kolusu (Anklet)</option>
+                                    <option value="Bracelet">Veera Bracelet</option>
                                 </select>
                             </div>
                         </div>
@@ -657,7 +783,11 @@
                             <option value="nethichutti">Nethi Chutti (Maang Tikka)</option>
                             <option value="mookuthi">Mookuthi (Nose Stud)</option>
                             <option value="valayal">Valayal (Temple Bangle)</option>
+                            <option value="kaapu">Kaapu (Men's Bangle)</option>
+                            <option value="ring">Kshatriya Signet Ring</option>
+                            <option value="rutraksha">Rutraksha Maala</option>
                             <option value="thusi">Thusi (Royal Choker)</option>
+                            <option value="Bracelet">Veera Bracelet</option>
                         </select>
                     </div>
                 </div>
@@ -1162,6 +1292,89 @@
                         Design #1</strong>
                     <span id="kaasuCounter" style="color: #888; font-size: 0.68rem; font-weight: 300;">1 / 136</span>
                     <button id="kaasuBtnVault" type="button"
+                        style="background: #bf953f; color: #000; border: none; padding: 0.45rem 0.9rem; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.25s ease; margin-top: 0.1rem;">
+                        &#10022; Add to my Vault &#10022;
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ====================================================================
+         VANKI ARMLET HERITAGE CATALOG — FULL-SCREEN IN-PAGE OVERLAY
+         Opens without reloading. Closed by "Back to Masterpieces" button.
+         ==================================================================== -->
+    <div id="vankiCatalogOverlay" style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9002;
+        background: #050505;
+        flex-direction: column;
+        font-family: 'Outfit', sans-serif;
+    ">
+        <!-- Overlay Header -->
+        <header
+            style="background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(191,149,63,0.18); padding: 0 2rem; z-index: 10; width: 100%; display: flex; align-items: center; justify-content: space-between; height: 64px; flex-shrink: 0; box-sizing: border-box;">
+            <button id="btnVankiBack"
+                style="background: none; border: none; color: #bf953f; font-size: 0.85rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-family: 'Outfit', sans-serif; transition: color 0.2s;">
+                <span style="font-size: 1.2rem; line-height: 1;">&#8592;</span> Back to Masterpieces
+            </button>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <img src="logo.png" alt="AD JEWELS"
+                    style="height: 34px; width: auto; object-fit: contain; border-radius: 50%;">
+                <span
+                    style="font-family: 'Cinzel Decorative', serif; color: #bf953f; font-weight: 700; letter-spacing: 0.1em; font-size: 1rem;">AD
+                    JEWELS</span>
+            </div>
+            <div style="width: 160px;"></div>
+        </header>
+
+        <!-- Overlay Body: Sidebar + Canvas -->
+        <main class="catalog-main" style="display: flex; flex: 1; overflow: hidden; min-height: 0;">
+
+            <!-- Left Sidebar Thumbnail Strip -->
+            <aside class="sidebar-thumbnails"
+                style="width: 300px; border-right: 1px solid rgba(191,149,63,0.15); background: #0a0a0a; display: flex; flex-direction: column; flex-shrink: 0; height: 100%; overflow: hidden;">
+                <div
+                    style="padding: 1.1rem 1.25rem; border-bottom: 1px solid rgba(191,149,63,0.1); background: rgba(0,0,0,0.3);">
+                    <span
+                        style="color: #bf953f; font-size: 0.62rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 0.2rem;">Heritage
+                        References</span>
+                    <h3
+                        style="font-family: 'Cinzel Decorative', serif; font-size: 0.95rem; color: #fff; margin: 0; font-weight: 700;">
+                        Vanki Archive (63)</h3>
+                </div>
+                <div id="vankiCatalogGrid" class="sidebar-thumb-grid"
+                    style="flex: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 1.1rem;">
+                </div>
+            </aside>
+
+            <!-- Right Canvas: Large Image -->
+            <section class="showcase-canvas"
+                style="flex: 1; position: relative; background: #000; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+                <button class="close-showcase-btn" type="button" aria-label="Back to Grid"
+                    style="display: none; position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.75); border: 1px solid rgba(191,149,63,0.4); color: #bf953f; border-radius: 4px; padding: 6px 14px; font-size: 0.72rem; text-transform: uppercase; font-weight: 600; font-family: 'Outfit', sans-serif; cursor: pointer; z-index: 100; backdrop-filter: blur(5px);">←
+                    Grid</button>
+                <button id="vankiBtnPrev" type="button" aria-label="Previous"
+                    style="position: absolute; left: 18px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); border: 1px solid rgba(191,149,63,0.35); color: #bf953f; width: 44px; height: 44px; border-radius: 50%; font-size: 1.6rem; cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">&#8249;</button>
+
+                <img id="vankiImgDisplay" src="" alt="Selected Vanki Design"
+                    style="max-width: 88%; max-height: 88%; object-fit: contain; transition: opacity 0.2s ease; display: block; border-radius: 4px; box-shadow: 0 20px 60px rgba(0,0,0,0.8);">
+
+                <button id="vankiBtnNext" type="button" aria-label="Next"
+                    style="position: absolute; right: 18px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); border: 1px solid rgba(191,149,63,0.35); color: #bf953f; width: 44px; height: 44px; border-radius: 50%; font-size: 1.6rem; cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">&#8250;</button>
+
+                <!-- Info + Add to Vault bar -->
+                <div
+                    style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.88); border: 1px solid rgba(191,149,63,0.3); border-radius: 6px; padding: 0.85rem 1.4rem; text-align: center; backdrop-filter: blur(10px); z-index: 10; display: flex; flex-direction: column; gap: 0.45rem; min-width: 280px; box-shadow: 0 5px 20px rgba(0,0,0,0.6);">
+                    <span
+                        style="font-size: 0.6rem; color: #bf953f; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;">Selected
+                        Design Reference</span>
+                    <strong id="vankiRefName" style="color: #fff; font-size: 0.82rem; font-weight: 500;">Vanki Armlet
+                        Design #1</strong>
+                    <span id="vankiCounter" style="color: #888; font-size: 0.68rem; font-weight: 300;">1 / 63</span>
+                    <button id="vankiBtnVault" type="button"
                         style="background: #bf953f; color: #000; border: none; padding: 0.45rem 0.9rem; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.25s ease; margin-top: 0.1rem;">
                         &#10022; Add to my Vault &#10022;
                     </button>
