@@ -829,6 +829,109 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // File upload state variables
+    let uploadedFileBase64 = null;
+    let uploadedFileName = null;
+
+    const fileInput = document.getElementById('conciergeIdeaFile');
+    const uploadWrapper = document.getElementById('conciergeFileUploadWrapper');
+    const uploadText = document.getElementById('conciergeUploadText');
+    const uploadIcon = document.getElementById('conciergeUploadIcon');
+
+    if (fileInput && uploadWrapper) {
+        // Drag and drop visual events
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadWrapper.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                uploadWrapper.style.borderColor = '#bf953f';
+                uploadWrapper.style.backgroundColor = 'rgba(191, 149, 63, 0.08)';
+                if (uploadIcon) uploadIcon.style.transform = 'scale(1.1)';
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadWrapper.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                uploadWrapper.style.borderColor = 'rgba(191, 149, 63, 0.3)';
+                uploadWrapper.style.backgroundColor = 'rgba(10, 10, 12, 0.4)';
+                if (uploadIcon) uploadIcon.style.transform = 'scale(1)';
+            }, false);
+        });
+
+        uploadWrapper.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            // Validate file size (5MB limit)
+            const maxSize = 5 * 1024 * 1024;
+            if (file.size > maxSize) {
+                alert('File size exceeds the 5MB limit. Please upload a smaller file.');
+                resetUpload();
+                return;
+            }
+
+            // Validate file type (Images + PDFs)
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'application/pdf'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('File type not allowed. Please upload PNG, JPG, WEBP, or PDF.');
+                resetUpload();
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                uploadedFileBase64 = e.target.result.split(',')[1];
+                uploadedFileName = file.name;
+                
+                // Update UI to show successful selection
+                if (uploadText) {
+                    uploadText.innerHTML = `<span style="color: #bf953f; font-weight: 600;">✦ Selected File: ${escapeHtml(file.name)}</span><br>` +
+                        `<span id="btnRemoveFile" style="font-size: 0.65rem; color: #ff5555; text-decoration: underline; margin-top: 0.4rem; display: inline-block;">Remove File</span>`;
+                    
+                    // Wire the dynamic remove button click safely
+                    const btnRemove = document.getElementById('btnRemoveFile');
+                    if (btnRemove) {
+                        btnRemove.addEventListener('click', (ev) => {
+                            ev.stopPropagation(); // Avoid triggering open file explorer dialogue
+                            resetUpload();
+                        });
+                    }
+                }
+                if (uploadIcon) uploadIcon.textContent = '✓';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetUpload() {
+            uploadedFileBase64 = null;
+            uploadedFileName = null;
+            fileInput.value = '';
+            if (uploadText) {
+                uploadText.innerHTML = `Drag & drop or click to upload your sketch<br><span style="font-size: 0.65rem; color: rgba(255, 255, 255, 0.4);">(PNG, JPG, WEBP, PDF — Max 5MB)</span>`;
+            }
+            if (uploadIcon) {
+                uploadIcon.textContent = '✦';
+                uploadIcon.style.transform = 'scale(1)';
+            }
+        }
+
+        // Helper to securely render filename
+        function escapeHtml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+    }
+
     // Handle Bespoke Concierge Form Submission
     if (conciergeForm) {
         conciergeForm.addEventListener('submit', (e) => {
@@ -868,10 +971,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     date: dateVal,
                     design: designVal,
                     notes: finalNotes,
-                    source: 'Bespoke Concierge Form'
+                    source: 'Bespoke Concierge Form',
+                    ideaFile: uploadedFileBase64,
+                    ideaFileName: uploadedFileName
                 })
             })
-            .then(res => res.json())
+            .then(async res => {
+                const isJson = res.headers.get('content-type')?.includes('application/json');
+                const data = isJson ? await res.json() : null;
+                
+                if (!res.ok) {
+                    const errMsg = (data && data.error) ? data.error : `Server returned status ${res.status}`;
+                    throw new Error(errMsg);
+                }
+                return data;
+            })
             .then(data => {
                 submitBtn.textContent = origText;
                 submitBtn.disabled = false;
@@ -891,6 +1005,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (conciergeRefCode) conciergeRefCode.textContent = data.refCode;
 
                 conciergeForm.reset();
+                if (typeof resetUpload === 'function') resetUpload();
+
                 // Ensure default view and design selection are recheck-initialized after form reset
                 checkConciergeGallery();
                 if (conciergeSuccessScreen) conciergeSuccessScreen.classList.add('active');
@@ -899,7 +1015,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 submitBtn.textContent = origText;
                 submitBtn.disabled = false;
                 console.error("Concierge submit error:", err);
-                alert("Vault communication error. Please ensure backend server is active.");
+                alert(err.message || "Vault communication error. Please ensure backend server is active.");
             });
         });
     }

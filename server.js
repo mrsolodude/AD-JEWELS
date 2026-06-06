@@ -294,6 +294,12 @@ function sendBookingEmail(bookingDetails) {
                             <th>Collection</th>
                             <td style="text-transform: capitalize; font-weight: bold; color: #bf953f;">${bookingDetails.design}</td>
                         </tr>
+                        ${bookingDetails.ideaFile ? `
+                        <tr>
+                            <th>Design Idea File</th>
+                            <td style="color: #bf953f; font-weight: bold;">✦ ${bookingDetails.ideaFile.originalName} (Attached)</td>
+                        </tr>
+                        ` : ''}
                     </table>
 
                     ${bookingDetails.notes ? `
@@ -321,6 +327,12 @@ function sendBookingEmail(bookingDetails) {
             subject: subject,
             html: htmlContent
         };
+        if (bookingDetails.ideaFile && bookingDetails.ideaFile.savedPath) {
+            mailOptions.attachments = [{
+                filename: bookingDetails.ideaFile.originalName,
+                path: bookingDetails.ideaFile.savedPath
+            }];
+        }
         const activeTransporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -343,7 +355,7 @@ function sendBookingEmail(bookingDetails) {
 }
 
 // 1. Parse JSON body payloads safely
-app.use(express.json({ limit: '10kb' })); // Imposes strict payload size limit against DOS attacks
+app.use(express.json({ limit: '15mb' })); // Increased limit to support customer sketch file uploads, while preventing excessive payloads
 
 // 2. Inject Robust HTTP Security Headers
 app.use((req, res, next) => {
@@ -386,11 +398,49 @@ app.use(express.static(__dirname));
    ========================================================================== */
 app.post('/api/bookings', (req, res) => {
     try {
-        const { name, email, phone, date, time, design, notes, source } = req.body;
+        const { name, email, phone, date, time, design, notes, source, ideaFile, ideaFileName } = req.body;
 
         // --- Server-side Input Validation & Sanitization ---
         if (!name || !email || !phone || !date || !design) {
             return res.status(400).json({ error: 'All primary fields are required.' });
+        }
+
+        // Validate and save custom design idea file if uploaded
+        let savedFileInfo = null;
+        if (ideaFile && ideaFileName) {
+            // Path traversal protection: strip directories
+            const cleanFileName = path.basename(ideaFileName);
+            const ext = path.extname(cleanFileName).toLowerCase();
+            const allowedExts = ['.png', '.jpg', '.jpeg', '.webp', '.pdf'];
+            
+            if (!allowedExts.includes(ext)) {
+                return res.status(400).json({ error: 'File type not allowed. Please upload PNG, JPG, WEBP, or PDF.' });
+            }
+
+            // Impose size limit on uploaded file data (10MB maximum decoded size)
+            const estimatedBytes = ideaFile.length * 0.75;
+            if (estimatedBytes > 10 * 1024 * 1024) {
+                return res.status(400).json({ error: 'Uploaded file size exceeds the 10MB backend limit.' });
+            }
+
+            // Generate an unpredictable unique name to prevent target path attacks or collisions
+            const crypto = require('crypto');
+            const uniqueName = crypto.randomBytes(16).toString('hex') + ext;
+
+            const uploadDir = path.join(__dirname, 'data', 'uploads');
+            if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
+            }
+
+            const savedFilePath = path.join(uploadDir, uniqueName);
+            const fileBuffer = Buffer.from(ideaFile, 'base64');
+            fs.writeFileSync(savedFilePath, fileBuffer);
+
+            savedFileInfo = {
+                originalName: cleanFileName,
+                savedName: uniqueName,
+                savedPath: savedFilePath
+            };
         }
 
         // Strip HTML characters to prevent storage-based XSS injection
@@ -441,6 +491,11 @@ app.post('/api/bookings', (req, res) => {
             design: design,
             notes: cleanNotes,
             source: cleanSource,
+            ideaFile: savedFileInfo ? {
+                originalName: savedFileInfo.originalName,
+                savedName: savedFileInfo.savedName,
+                savedPath: savedFileInfo.savedPath
+            } : null,
             createdAt: new Date().toISOString()
         };
 

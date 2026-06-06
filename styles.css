@@ -366,13 +366,15 @@ a {
     z-index: 99;
     transform: translateY(-20px);
     opacity: 0;
-    transition: var(--transition-smooth);
+    visibility: hidden;
+    transition: transform var(--transition-smooth), opacity var(--transition-smooth), visibility var(--transition-smooth);
     pointer-events: none;
 }
 
 .mobile-menu.open {
     transform: translateY(0);
     opacity: 1;
+    visibility: visible;
     pointer-events: auto;
 }
 

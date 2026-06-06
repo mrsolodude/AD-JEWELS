@@ -4,3 +4,4 @@ node_modules/
 data/email_config.json
 data/email_logs.json
 data/bookings.json
+data/uploads/
