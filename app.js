@@ -1476,7 +1476,7 @@ document.addEventListener('DOMContentLoaded', () => {
         mangamalai: "Purity: 22K Yellow Gold | Accents: Recurved mango settings & Kemp gems",
         oddiyanam: "Purity: 22K Yellow Gold | Accents: Kemp Rubies & Carved Peacocks",
         nethichutti: "Purity: 22K Gold Filigree | Accents: Kemp Rubies & Natural Pearls",
-        mookuthi: "Purity: 22K Gold Setting | Accents: Single Uncut Diamond & Kemp Rubies",
+        bridalset: "Purity: 22K Antique Gold | Accents: Choker, Long Haram, Maang Tikka & Jhumkas | Kemp Rubies & Emeralds",
         valayal: "Purity: 22K Antique Gold | Accents: Kemp Emeralds & Rubies",
         kaapu: "Purity: 22K Antique Gold | Accents: Carved Lion terminals & Ruby eyes",
         ring: "Purity: 22K Yellow Gold | Accents: Royal Peacock engraving",
@@ -1495,7 +1495,7 @@ document.addEventListener('DOMContentLoaded', () => {
         mangamalai: "Manga Malai Choker",
         oddiyanam: "Gaja Lakshmi Oddiyanam",
         nethichutti: "Chola Nethi Chutti",
-        mookuthi: "Solitaire Mookuthi",
+        bridalset: "Bridal Set",
         valayal: "Divine Dancer Valayal",
         kaapu: "Kaapu",
         ring: "Kshatriya Signet Ring",
@@ -1644,8 +1644,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     itemImageSrc = 'oddiyanam.jpg';
                 } else if (item.design === 'mangamalai') {
                     itemImageSrc = 'mangamalai.jpg';
-                } else if (item.design === 'mookuthi') {
-                    itemImageSrc = 'mookuthi.jpg';
+                } else if (item.design === 'bridalset') {
+                    itemImageSrc = 'bridalset.jpg';
                 } else if (item.design === 'Stud') {
                     itemImageSrc = 'studs.jpg';
                 } else if (item.design === 'Bracelet') {
@@ -1867,7 +1867,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     rutraksha: "rutraksha.jpg",
                     oddiyanam: "oddiyanam.jpg",
                     mangamalai: "mangamalai.jpg",
-                    mookuthi: "mookuthi.jpg",
+                    bridalset: "bridalset.jpg",
                     Stud: "studs.jpg",
                     Bracelet: "Bracelet.jpg"
                 };
@@ -2112,7 +2112,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <circle cx="50" cy="34" r="5" fill="var(--text-gold)" />
             </svg>`,
 
-            // 5. Mookuthi Diamond Nose Stud
+            // 5. Bridal Set
             `<svg viewBox="0 0 100 100" style="width: 100%; height: 100%; fill: none; stroke: var(--text-gold); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round;">
                 <polygon points="50,22 70,50 50,78 30,50" fill="rgba(191,149,63,0.15)" />
                 <circle cx="50" cy="50" r="6" fill="var(--text-gold)" />
