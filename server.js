@@ -15,6 +15,7 @@ const DATA_DIR = path.join(__dirname, 'data');
 const BOOKINGS_FILE = path.join(DATA_DIR, 'bookings.json');
 const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
+const USERS_CSV_FILE = path.join(DATA_DIR, 'registered_users.csv');
 
 // Ensure database folder and files exist safely
 if (!fs.existsSync(DATA_DIR)) {
@@ -87,6 +88,130 @@ function saveFallbackEmailLog(bookingDetails, subject, status) {
     } catch (e) {
         console.error('[EMAIL ERROR] Failed to write fallback email log:', e);
     }
+}
+
+/**
+ * Appends a newly registered user to the CSV database (registered_users.csv)
+ * so it can be viewed directly in Microsoft Excel.
+ */
+function appendUserToExcel(name, email, createdAt) {
+    try {
+        if (!fs.existsSync(USERS_CSV_FILE)) {
+            const header = 'Name,Email,Registration Date\n';
+            fs.writeFileSync(USERS_CSV_FILE, header, 'utf-8');
+        }
+
+        const escapeCSV = (val) => {
+            if (val === null || val === undefined) return '';
+            const str = String(val).replace(/"/g, '""');
+            return `"${str}"`;
+        };
+
+        const row = `${escapeCSV(name)},${escapeCSV(email)},${escapeCSV(createdAt)}\n`;
+        fs.appendFileSync(USERS_CSV_FILE, row, 'utf-8');
+        console.log(`[CSV UPDATED] Appended registered user ${email} to data/registered_users.csv`);
+    } catch (err) {
+        console.error('[CSV ERROR] Failed to append user to CSV:', err);
+    }
+}
+
+/**
+ * Dispatches notification email to adjewellery226@gmail.com on user registration
+ */
+function sendRegistrationEmail(name, email, createdAt) {
+    const recipient = 'adjewellery226@gmail.com';
+    const subject = `✦ AD JEWELS - New Connoisseur Registration [${email}] ✦`;
+
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body { font-family: 'Outfit', sans-serif; background-color: #0c0a09; color: #e7e5e4; margin: 0; padding: 20px; }
+            .container { max-width: 600px; margin: 0 auto; background-color: #171515; border: 1px solid rgba(191, 149, 63, 0.2); border-radius: 8px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+            .header { text-align: center; border-bottom: 1px solid rgba(191, 149, 63, 0.15); padding-bottom: 15px; }
+            .title { color: #bf953f; font-family: 'Cinzel Decorative', serif; font-size: 1.25rem; font-weight: 700; margin: 10px 0; }
+            .content { padding: 20px 0; font-size: 14px; line-height: 1.6; }
+            .field-row { margin-bottom: 12px; }
+            .field-label { color: #8c8a89; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; display: block; }
+            .field-value { color: #fff; font-size: 14px; font-weight: 500; }
+            .footer { border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 15px; text-align: center; font-size: 11px; color: #8c8a89; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="title">AD JEWELS - INNER CIRCLE</div>
+                <h3 style="margin: 5px 0; color: #fff;">New Registration Alert</h3>
+            </div>
+            <div class="content">
+                <p>Salutations, Administrator. A new patron has registered an account in the Inner Circle Sanctuary:</p>
+                <div class="field-row">
+                    <span class="field-label">Patron Name</span>
+                    <span class="field-value">${name}</span>
+                </div>
+                <div class="field-row">
+                    <span class="field-label">Patron Email Address</span>
+                    <span class="field-value">${email}</span>
+                </div>
+                <div class="field-row">
+                    <span class="field-label">Registration Timestamp</span>
+                    <span class="field-value">${new Date(createdAt).toLocaleString()}</span>
+                </div>
+                <p style="font-size: 12px; color: #bf953f; font-style: italic;">
+                    * This record has been automatically appended to the Sanctuary's excel sheet registry (registered_users.csv).
+                </p>
+            </div>
+            <div class="footer">
+                © 2026 AD JEWELS. Private Vault Notification System.
+            </div>
+        </div>
+    </body>
+    </html>
+    `;
+
+    let activeUser = process.env.EMAIL_USER || 'adjewellery226@gmail.com';
+    let activePass = process.env.EMAIL_PASS || '';
+
+    if (fs.existsSync(EMAIL_CONFIG_FILE)) {
+        try {
+            const configData = JSON.parse(fs.readFileSync(EMAIL_CONFIG_FILE, 'utf-8'));
+            if (configData.EMAIL_USER && configData.EMAIL_USER !== 'adjewellery226@gmail.com') {
+                activeUser = configData.EMAIL_USER;
+            }
+            if (configData.EMAIL_PASS && configData.EMAIL_PASS !== 'PASTE_YOUR_16_CHARACTER_GMAIL_APP_PASSWORD_HERE') {
+                activePass = configData.EMAIL_PASS;
+            }
+        } catch (err) {
+            console.error('[EMAIL CONFIG ERROR] Failed to parse email_config.json on-demand:', err);
+        }
+    }
+
+    const transport = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: activeUser,
+            pass: activePass
+        }
+    });
+
+    const mailOptions = {
+        from: `"AD JEWELS Sanctuary" <${activeUser}>`,
+        to: recipient,
+        subject: subject,
+        html: htmlContent
+    };
+
+    transport.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.error('[EMAIL ERROR] Failed to dispatch registration alert:', error);
+            saveFallbackEmailLog({ id: email, name: name, email: email, source: 'Registration Alert' }, subject, 'Registration Email Error: ' + error.message);
+        } else {
+            console.log(`[EMAIL DISPATCHED] Registration alert sent to ${recipient}: ${info.response}`);
+            saveFallbackEmailLog({ id: email, name: name, email: email, source: 'Registration Alert' }, subject, 'Sent successfully');
+        }
+    });
 }
 
 /**
@@ -359,6 +484,15 @@ app.use(express.json({ limit: '15mb' })); // Increased limit to support customer
 
 // 2. Inject Robust HTTP Security Headers
 app.use((req, res, next) => {
+    // Enable CORS for secure local development and testing
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
+
     // Prevent MIME-sniffing
     res.setHeader('X-Content-Type-Options', 'nosniff');
     
@@ -375,7 +509,7 @@ app.use((req, res, next) => {
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
         "font-src 'self' https://fonts.gstatic.com; " +
         "img-src 'self' data:; " +
-        "connect-src 'self';"
+        "connect-src 'self' http://localhost:8000 http://127.0.0.1:8000;"
     );
     
     next();
@@ -574,6 +708,136 @@ app.post('/api/bookings/lookup', (req, res) => {
 });
 
 /* ==========================================================================
+   REST API Endpoints: Email Logs & Details Routing Setup
+   ========================================================================== */
+app.get('/api/email-logs', (req, res) => {
+    try {
+        const logsData = fs.readFileSync(EMAIL_LOGS_FILE, 'utf-8');
+        res.status(200).json(JSON.parse(logsData));
+    } catch (e) {
+        console.error('Error reading email logs:', e);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.get('/api/email-logs/:bookingId', (req, res) => {
+    try {
+        const { bookingId } = req.params;
+        const logsData = fs.readFileSync(EMAIL_LOGS_FILE, 'utf-8');
+        const logs = JSON.parse(logsData);
+        const match = logs.find(l => 
+            l.bookingId === bookingId || 
+            l.bookingId === bookingId.toUpperCase() ||
+            (l.details && l.details.id === bookingId)
+        );
+        if (!match) {
+            return res.status(404).json({ error: 'Email log not found for this booking ID' });
+        }
+        res.status(200).json(match);
+    } catch (e) {
+        console.error('Error reading email log:', e);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.get('/api/email-details/:bookingId', (req, res) => {
+    try {
+        const { bookingId } = req.params;
+        const logsData = fs.readFileSync(EMAIL_LOGS_FILE, 'utf-8');
+        const logs = JSON.parse(logsData);
+        const match = logs.find(l => 
+            l.bookingId === bookingId || 
+            l.bookingId === bookingId.toUpperCase() ||
+            (l.details && l.details.id === bookingId)
+        );
+        if (!match) {
+            return res.status(404).json({ error: 'Email details not found for this booking ID' });
+        }
+        res.status(200).json(match);
+    } catch (e) {
+        console.error('Error reading email details:', e);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.get('/api/email/details/:bookingId', (req, res) => {
+    try {
+        const { bookingId } = req.params;
+        const logsData = fs.readFileSync(EMAIL_LOGS_FILE, 'utf-8');
+        const logs = JSON.parse(logsData);
+        const match = logs.find(l => 
+            l.bookingId === bookingId || 
+            l.bookingId === bookingId.toUpperCase() ||
+            (l.details && l.details.id === bookingId)
+        );
+        if (!match) {
+            return res.status(404).json({ error: 'Email details not found for this booking ID' });
+        }
+        res.status(200).json(match);
+    } catch (e) {
+        console.error('Error reading email details:', e);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+/* ==========================================================================
+   REST API Endpoints: Administrative Dashboard Support
+   ========================================================================== */
+
+// GET /api/bookings (Admin - lists all bookings)
+app.get('/api/bookings', (req, res) => {
+    try {
+        const bookingsData = fs.readFileSync(BOOKINGS_FILE, 'utf-8');
+        res.status(200).json(JSON.parse(bookingsData));
+    } catch (e) {
+        console.error('Error reading bookings:', e);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// GET /api/orders (Admin - lists all orders)
+app.get('/api/orders', (req, res) => {
+    try {
+        const ordersData = fs.readFileSync(ORDERS_FILE, 'utf-8');
+        res.status(200).json(JSON.parse(ordersData));
+    } catch (e) {
+        console.error('Error reading orders:', e);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// GET /api/email-config (Admin - reads current email config without pass)
+app.get('/api/email-config', (req, res) => {
+    try {
+        let activeUser = 'adjewellery226@gmail.com';
+        if (fs.existsSync(EMAIL_CONFIG_FILE)) {
+            const configData = JSON.parse(fs.readFileSync(EMAIL_CONFIG_FILE, 'utf-8'));
+            if (configData.EMAIL_USER) activeUser = configData.EMAIL_USER;
+        }
+        res.status(200).json({ EMAIL_USER: activeUser });
+    } catch (e) {
+        console.error('Error reading email config:', e);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// POST /api/email-config (Admin - updates email settings)
+app.post('/api/email-config', (req, res) => {
+    try {
+        const { EMAIL_USER, EMAIL_PASS } = req.body;
+        if (!EMAIL_USER || !EMAIL_PASS) {
+            return res.status(400).json({ error: 'Email user and password are required.' });
+        }
+        const configData = { EMAIL_USER, EMAIL_PASS };
+        fs.writeFileSync(EMAIL_CONFIG_FILE, JSON.stringify(configData, null, 2), 'utf-8');
+        res.status(200).json({ success: true, message: 'Configuration saved successfully.' });
+    } catch (e) {
+        console.error('Error saving email config:', e);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+/* ==========================================================================
    REST API Endpoint: Inner Circle User Registration (POST /api/auth/register)
    ========================================================================== */
 app.post('/api/auth/register', (req, res) => {
@@ -609,6 +873,10 @@ app.post('/api/auth/register', (req, res) => {
 
         users.push(newUser);
         fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf-8');
+
+        // Automatic Excel/CSV Registry Entry and Admin Email Notification
+        appendUserToExcel(cleanName, cleanEmail, newUser.createdAt);
+        sendRegistrationEmail(cleanName, cleanEmail, newUser.createdAt);
 
         res.status(201).json({
             success: true,
@@ -722,9 +990,9 @@ app.use((req, res) => {
 });
 
 // Start Express Server
-app.listen(PORT, () => {
+app.listen(PORT, HOST, () => {
     console.log(`================================================================`);
     console.log(`  AD JEWELS Full-Stack Express Server started successfully!`);
-    console.log(`  Sanctuary URL: http://localhost:${PORT}`);
+    console.log(`  Sanctuary URL: http://${HOST}:${PORT}`);
     console.log(`================================================================`);
 });

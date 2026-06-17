@@ -1145,6 +1145,12 @@ a {
     gap: 1.5rem;
 }
 
+.legend-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
 .collection-card-item {
     perspective: 1000px;
 }
@@ -1565,7 +1571,8 @@ a {
         gap: 2.5rem;
     }
     
-    .collections-grid {
+    .collections-grid,
+    .legend-grid {
         grid-template-columns: repeat(2, 1fr);
     }
     
@@ -1628,7 +1635,8 @@ a {
         grid-template-columns: 1fr;
     }
     
-    .collections-grid {
+    .collections-grid,
+    .legend-grid {
         grid-template-columns: 1fr;
     }
     
@@ -2313,7 +2321,10 @@ body.subpage-active {
 /* Large preview image inside showcase canvas */
 .showcase-canvas #imgArchiveDisplay,
 .showcase-canvas #overlayImgDisplay,
-.showcase-canvas #kaasuImgDisplay {
+.showcase-canvas #kaasuImgDisplay,
+.showcase-canvas #vankiImgDisplay,
+.showcase-canvas #maangaImgDisplay,
+.showcase-canvas #oddiyanamImgDisplay {
     width: auto !important;
     height: auto !important;
     max-width: 90% !important;
@@ -2442,7 +2453,10 @@ body.subpage-active {
     /* Adjust showcase images on mobile to fit nicely above the card and not bleed */
     .catalog-main.showcase-active .showcase-canvas #imgArchiveDisplay,
     .catalog-main.showcase-active .showcase-canvas #overlayImgDisplay,
-    .catalog-main.showcase-active .showcase-canvas #kaasuImgDisplay {
+    .catalog-main.showcase-active .showcase-canvas #kaasuImgDisplay,
+    .catalog-main.showcase-active .showcase-canvas #vankiImgDisplay,
+    .catalog-main.showcase-active .showcase-canvas #maangaImgDisplay,
+    .catalog-main.showcase-active .showcase-canvas #oddiyanamImgDisplay {
         max-width: 92% !important;
         max-height: 60vh !important; /* Majestic large size! */
         margin-bottom: 95px !important; /* clearance for the bottom card */
@@ -2497,6 +2511,73 @@ body.subpage-active {
         right: 12px !important;
     }
 }
+
+/* Prevent horizontal scrolling and layout leakage on all catalog overlays */
+#jimikkiCatalogOverlay,
+#kaasuMaalaiCatalogOverlay,
+#vankiCatalogOverlay,
+#maangaCatalogOverlay,
+#oddiyanamCatalogOverlay {
+    overflow: hidden !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+}
+
+.catalog-main {
+    overflow: hidden !important;
+    max-width: 100vw !important;
+}
+
+.showcase-canvas {
+    overflow: hidden !important;
+    max-width: 100vw !important;
+    touch-action: pan-y; /* Disable native horizontal swipe behaviors */
+}
+
+/* Premium Zoom Control Floating Button Group */
+.zoom-controls {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 100;
+}
+
+.zoom-btn {
+    background: rgba(0, 0, 0, 0.75) !important;
+    border: 1px solid rgba(191, 149, 63, 0.4) !important;
+    color: #bf953f !important;
+    border-radius: 4px !important;
+    width: 36px !important;
+    height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.2rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    backdrop-filter: blur(5px) !important;
+    transition: all 0.2s ease !important;
+    font-family: 'Outfit', sans-serif !important;
+    user-select: none !important;
+}
+
+.zoom-btn:hover {
+    background: var(--text-gold) !important;
+    color: #000 !important;
+    box-shadow: 0 0 10px rgba(191, 149, 63, 0.6) !important;
+    border-color: var(--text-gold) !important;
+}
+
+/* Disable transition on image during active pan/zoom to keep drag feedback instant */
+.showcase-canvas img.zoomed-in {
+    transition: none !important;
+}
+
 
 
 

@@ -24,8 +24,15 @@
     let overlayIdx = 0;
     let overlayReady = false;
 
+    // ---- Zoom state variables ----
+    let zoomLevel = 1;
+    let translateX = 0;
+    let translateY = 0;
+    let isDragging = false;
+    let startX = 0, startY = 0;
+
     // ---- DOM refs (resolved on first open) ----
-    let overlay, grid, imgDisplay, btnPrev, btnNext, refName, counter, btnVault, btnBack;
+    let overlay, grid, imgDisplay, btnPrev, btnNext, refName, counter, btnVault, btnBack, btnZoomIn, btnZoomOut;
 
     function resolveRefs() {
         overlay    = document.getElementById('jimikkiCatalogOverlay');
@@ -37,10 +44,34 @@
         counter    = document.getElementById('overlayCounter');
         btnVault   = document.getElementById('overlayBtnVault');
         btnBack    = document.getElementById('btnCatalogBack');
+        btnZoomIn  = document.getElementById('overlayBtnZoomIn');
+        btnZoomOut = document.getElementById('overlayBtnZoomOut');
+    }
+
+    function applyZoom() {
+        if (!imgDisplay) return;
+        if (zoomLevel > 1) {
+            imgDisplay.classList.add('zoomed-in');
+            imgDisplay.style.transform = `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)`;
+            imgDisplay.style.cursor = 'grab';
+            imgDisplay.style.touchAction = 'none';
+        } else {
+            imgDisplay.classList.remove('zoomed-in');
+            imgDisplay.style.transform = '';
+            imgDisplay.style.cursor = 'default';
+            imgDisplay.style.touchAction = '';
+            translateX = 0;
+            translateY = 0;
+        }
     }
 
     // ---- Update the large preview image ----
     function overlayShow(idx) {
+        zoomLevel = 1;
+        translateX = 0;
+        translateY = 0;
+        applyZoom();
+
         overlayIdx = (idx + overlayArchives.length) % overlayArchives.length;
         const src = './jimiki/' + overlayArchives[overlayIdx];
 
@@ -132,6 +163,70 @@
             const canvas = overlay.querySelector('section');
             if (canvas) attachSwipe(canvas);
 
+            // Zoom controls
+            if (btnZoomIn) {
+                btnZoomIn.addEventListener('click', () => {
+                    if (zoomLevel < 4) {
+                        zoomLevel += 0.5;
+                        applyZoom();
+                    }
+                });
+            }
+            if (btnZoomOut) {
+                btnZoomOut.addEventListener('click', () => {
+                    if (zoomLevel > 1) {
+                        zoomLevel -= 0.5;
+                        applyZoom();
+                    }
+                });
+            }
+
+            // Drag to pan logic on display image
+            if (imgDisplay) {
+                imgDisplay.addEventListener('mousedown', e => {
+                    if (zoomLevel <= 1) return;
+                    e.preventDefault();
+                    isDragging = true;
+                    startX = e.clientX - translateX * zoomLevel;
+                    startY = e.clientY - translateY * zoomLevel;
+                    imgDisplay.style.cursor = 'grabbing';
+                });
+
+                window.addEventListener('mousemove', e => {
+                    if (!isDragging) return;
+                    translateX = (e.clientX - startX) / zoomLevel;
+                    translateY = (e.clientY - startY) / zoomLevel;
+                    applyZoom();
+                });
+
+                window.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        imgDisplay.style.cursor = 'grab';
+                    }
+                });
+
+                // Mobile touch support
+                imgDisplay.addEventListener('touchstart', e => {
+                    if (zoomLevel <= 1) return;
+                    isDragging = true;
+                    startX = e.touches[0].clientX - translateX * zoomLevel;
+                    startY = e.touches[0].clientY - translateY * zoomLevel;
+                }, { passive: true });
+
+                imgDisplay.addEventListener('touchmove', e => {
+                    if (!isDragging) return;
+                    if (e.cancelable) e.preventDefault();
+                    translateX = (e.touches[0].clientX - startX) / zoomLevel;
+                    translateY = (e.touches[0].clientY - startY) / zoomLevel;
+                    applyZoom();
+                }, { passive: false });
+
+                imgDisplay.addEventListener('touchend', () => {
+                    isDragging = false;
+                });
+            }
+
             // Vault button
             btnVault.addEventListener('click', () => {
                 const file = overlayArchives[overlayIdx];
@@ -201,21 +296,53 @@
 
     let kaasuIdx = 0;
     let kaasuReady = false;
-    let kOverlay, kGrid, kImg, kBtnPrev, kBtnNext, kRefName, kCounter, kBtnVault, kBtnBack;
+
+    // ---- Zoom state variables ----
+    let zoomLevel = 1;
+    let translateX = 0;
+    let translateY = 0;
+    let isDragging = false;
+    let startX = 0, startY = 0;
+
+    let kOverlay, kGrid, kImg, kBtnPrev, kBtnNext, kRefName, kCounter, kBtnVault, kBtnBack, kBtnZoomIn, kBtnZoomOut;
 
     function kResolve() {
-        kOverlay  = document.getElementById('kaasuMaalaiCatalogOverlay');
-        kGrid     = document.getElementById('kaasuCatalogGrid');
-        kImg      = document.getElementById('kaasuImgDisplay');
-        kBtnPrev  = document.getElementById('kaasuBtnPrev');
-        kBtnNext  = document.getElementById('kaasuBtnNext');
-        kRefName  = document.getElementById('kaasuRefName');
-        kCounter  = document.getElementById('kaasuCounter');
-        kBtnVault = document.getElementById('kaasuBtnVault');
-        kBtnBack  = document.getElementById('btnKaasuBack');
+        kOverlay   = document.getElementById('kaasuMaalaiCatalogOverlay');
+        kGrid      = document.getElementById('kaasuCatalogGrid');
+        kImg       = document.getElementById('kaasuImgDisplay');
+        kBtnPrev   = document.getElementById('kaasuBtnPrev');
+        kBtnNext   = document.getElementById('kaasuBtnNext');
+        kRefName   = document.getElementById('kaasuRefName');
+        kCounter   = document.getElementById('kaasuCounter');
+        kBtnVault  = document.getElementById('kaasuBtnVault');
+        kBtnBack   = document.getElementById('btnKaasuBack');
+        kBtnZoomIn = document.getElementById('kaasuBtnZoomIn');
+        kBtnZoomOut = document.getElementById('kaasuBtnZoomOut');
+    }
+
+    function applyZoom() {
+        if (!kImg) return;
+        if (zoomLevel > 1) {
+            kImg.classList.add('zoomed-in');
+            kImg.style.transform = `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)`;
+            kImg.style.cursor = 'grab';
+            kImg.style.touchAction = 'none';
+        } else {
+            kImg.classList.remove('zoomed-in');
+            kImg.style.transform = '';
+            kImg.style.cursor = 'default';
+            kImg.style.touchAction = '';
+            translateX = 0;
+            translateY = 0;
+        }
     }
 
     function kShow(idx) {
+        zoomLevel = 1;
+        translateX = 0;
+        translateY = 0;
+        applyZoom();
+
         kaasuIdx = (idx + kaasuArchives.length) % kaasuArchives.length;
         const src = KAASU_DIR + kaasuArchives[kaasuIdx];
 
@@ -286,6 +413,70 @@
                 }, { passive: true });
             }
 
+            // Zoom controls
+            if (kBtnZoomIn) {
+                kBtnZoomIn.addEventListener('click', () => {
+                    if (zoomLevel < 4) {
+                        zoomLevel += 0.5;
+                        applyZoom();
+                    }
+                });
+            }
+            if (kBtnZoomOut) {
+                kBtnZoomOut.addEventListener('click', () => {
+                    if (zoomLevel > 1) {
+                        zoomLevel -= 0.5;
+                        applyZoom();
+                    }
+                });
+            }
+
+            // Drag to pan logic on display image
+            if (kImg) {
+                kImg.addEventListener('mousedown', e => {
+                    if (zoomLevel <= 1) return;
+                    e.preventDefault();
+                    isDragging = true;
+                    startX = e.clientX - translateX * zoomLevel;
+                    startY = e.clientY - translateY * zoomLevel;
+                    kImg.style.cursor = 'grabbing';
+                });
+
+                window.addEventListener('mousemove', e => {
+                    if (!isDragging) return;
+                    translateX = (e.clientX - startX) / zoomLevel;
+                    translateY = (e.clientY - startY) / zoomLevel;
+                    applyZoom();
+                });
+
+                window.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        kImg.style.cursor = 'grab';
+                    }
+                });
+
+                // Mobile touch support
+                kImg.addEventListener('touchstart', e => {
+                    if (zoomLevel <= 1) return;
+                    isDragging = true;
+                    startX = e.touches[0].clientX - translateX * zoomLevel;
+                    startY = e.touches[0].clientY - translateY * zoomLevel;
+                }, { passive: true });
+
+                kImg.addEventListener('touchmove', e => {
+                    if (!isDragging) return;
+                    if (e.cancelable) e.preventDefault();
+                    translateX = (e.touches[0].clientX - startX) / zoomLevel;
+                    translateY = (e.touches[0].clientY - startY) / zoomLevel;
+                    applyZoom();
+                }, { passive: false });
+
+                kImg.addEventListener('touchend', () => {
+                    isDragging = false;
+                });
+            }
+
             kBtnVault.addEventListener('click', () => {
                 const file = kaasuArchives[kaasuIdx];
                 const cart = JSON.parse(localStorage.getItem('ad_jewels_cart') || '[]');
@@ -336,21 +527,53 @@
 
     let vankiIdx = 0;
     let vankiReady = false;
-    let vOverlay, vGrid, vImg, vBtnPrev, vBtnNext, vRefName, vCounter, vBtnVault, vBtnBack;
+
+    // ---- Zoom state variables ----
+    let zoomLevel = 1;
+    let translateX = 0;
+    let translateY = 0;
+    let isDragging = false;
+    let startX = 0, startY = 0;
+
+    let vOverlay, vGrid, vImg, vBtnPrev, vBtnNext, vRefName, vCounter, vBtnVault, vBtnBack, vBtnZoomIn, vBtnZoomOut;
 
     function vResolve() {
-        vOverlay  = document.getElementById('vankiCatalogOverlay');
-        vGrid     = document.getElementById('vankiCatalogGrid');
-        vImg      = document.getElementById('vankiImgDisplay');
-        vBtnPrev  = document.getElementById('vankiBtnPrev');
-        vBtnNext  = document.getElementById('vankiBtnNext');
-        vRefName  = document.getElementById('vankiRefName');
-        vCounter  = document.getElementById('vankiCounter');
-        vBtnVault = document.getElementById('vankiBtnVault');
-        vBtnBack  = document.getElementById('btnVankiBack');
+        vOverlay   = document.getElementById('vankiCatalogOverlay');
+        vGrid      = document.getElementById('vankiCatalogGrid');
+        vImg       = document.getElementById('vankiImgDisplay');
+        vBtnPrev   = document.getElementById('vankiBtnPrev');
+        vBtnNext   = document.getElementById('vankiBtnNext');
+        vRefName   = document.getElementById('vankiRefName');
+        vCounter   = document.getElementById('vankiCounter');
+        vBtnVault  = document.getElementById('vankiBtnVault');
+        vBtnBack   = document.getElementById('btnVankiBack');
+        vBtnZoomIn = document.getElementById('vankiBtnZoomIn');
+        vBtnZoomOut = document.getElementById('vankiBtnZoomOut');
+    }
+
+    function applyZoom() {
+        if (!vImg) return;
+        if (zoomLevel > 1) {
+            vImg.classList.add('zoomed-in');
+            vImg.style.transform = `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)`;
+            vImg.style.cursor = 'grab';
+            vImg.style.touchAction = 'none';
+        } else {
+            vImg.classList.remove('zoomed-in');
+            vImg.style.transform = '';
+            vImg.style.cursor = 'default';
+            vImg.style.touchAction = '';
+            translateX = 0;
+            translateY = 0;
+        }
     }
 
     function vShow(idx) {
+        zoomLevel = 1;
+        translateX = 0;
+        translateY = 0;
+        applyZoom();
+
         vankiIdx = (idx + vankiArchives.length) % vankiArchives.length;
         const src = VANKI_DIR + vankiArchives[vankiIdx];
 
@@ -421,6 +644,70 @@
                 }, { passive: true });
             }
 
+            // Zoom controls
+            if (vBtnZoomIn) {
+                vBtnZoomIn.addEventListener('click', () => {
+                    if (zoomLevel < 4) {
+                        zoomLevel += 0.5;
+                        applyZoom();
+                    }
+                });
+            }
+            if (vBtnZoomOut) {
+                vBtnZoomOut.addEventListener('click', () => {
+                    if (zoomLevel > 1) {
+                        zoomLevel -= 0.5;
+                        applyZoom();
+                    }
+                });
+            }
+
+            // Drag to pan logic on display image
+            if (vImg) {
+                vImg.addEventListener('mousedown', e => {
+                    if (zoomLevel <= 1) return;
+                    e.preventDefault();
+                    isDragging = true;
+                    startX = e.clientX - translateX * zoomLevel;
+                    startY = e.clientY - translateY * zoomLevel;
+                    vImg.style.cursor = 'grabbing';
+                });
+
+                window.addEventListener('mousemove', e => {
+                    if (!isDragging) return;
+                    translateX = (e.clientX - startX) / zoomLevel;
+                    translateY = (e.clientY - startY) / zoomLevel;
+                    applyZoom();
+                });
+
+                window.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        vImg.style.cursor = 'grab';
+                    }
+                });
+
+                // Mobile touch support
+                vImg.addEventListener('touchstart', e => {
+                    if (zoomLevel <= 1) return;
+                    isDragging = true;
+                    startX = e.touches[0].clientX - translateX * zoomLevel;
+                    startY = e.touches[0].clientY - translateY * zoomLevel;
+                }, { passive: true });
+
+                vImg.addEventListener('touchmove', e => {
+                    if (!isDragging) return;
+                    if (e.cancelable) e.preventDefault();
+                    translateX = (e.touches[0].clientX - startX) / zoomLevel;
+                    translateY = (e.touches[0].clientY - startY) / zoomLevel;
+                    applyZoom();
+                }, { passive: false });
+
+                vImg.addEventListener('touchend', () => {
+                    isDragging = false;
+                });
+            }
+
             vBtnVault.addEventListener('click', () => {
                 const file = vankiArchives[vankiIdx];
                 const cart = JSON.parse(localStorage.getItem('ad_jewels_cart') || '[]');
@@ -452,8 +739,479 @@
 
 }());
 
+/* ==========================================================================
+   MAANGA MAALAI HERITAGE CATALOG — IN-PAGE OVERLAY CONTROLLER
+   ========================================================================== */
+(function () {
+    'use strict';
+
+    const maangaArchives = [
+        "1.jpeg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg", "7.jpg", "8.jpg", "9.jpg", "10.jpg",
+        "11.jpg", "12.jpg", "13.jpg", "14.jpg", "15.jpg", "16.jpg", "17.jpg", "18.jpg", "19.jpg", "20.jpg",
+        "21.jpg", "22.jpg", "23.jpg", "24.jpg", "25.jpg", "26.jpg", "28.jpg", "29.jpg", "30.jpg",
+        "31.jpg", "32.jpg", "33.jpg", "34.jpg", "35.jpg", "36.jpg", "37.jpg", "38.jpg", "39.jpg", "40.jpg",
+        "41.jpg", "42.jpg", "43.jpg", "44.jpg", "45.jpg", "46.jpg", "47.jpg", "48.jpg", "49.jpg", "50.jpg",
+        "51.jpg", "52.jpg", "53.jpg", "54.jpg", "55.jpg", "56.jpg", "57.jpg", "58.jpg", "59.jpg", "60.jpg"
+    ];
+    const MAANGA_DIR = './Maanga%20Maalai/';
+
+    let maangaIdx = 0;
+    let maangaReady = false;
+
+    // ---- Zoom state variables ----
+    let zoomLevel = 1;
+    let translateX = 0;
+    let translateY = 0;
+    let isDragging = false;
+    let startX = 0, startY = 0;
+
+    let mOverlay, mGrid, mImg, mBtnPrev, mBtnNext, mRefName, mCounter, mBtnVault, mBtnBack, mBtnZoomIn, mBtnZoomOut;
+
+    function mResolve() {
+        mOverlay   = document.getElementById('maangaCatalogOverlay');
+        mGrid      = document.getElementById('maangaCatalogGrid');
+        mImg       = document.getElementById('maangaImgDisplay');
+        mBtnPrev   = document.getElementById('maangaBtnPrev');
+        mBtnNext   = document.getElementById('maangaBtnNext');
+        mRefName   = document.getElementById('maangaRefName');
+        mCounter   = document.getElementById('maangaCounter');
+        mBtnVault  = document.getElementById('maangaBtnVault');
+        mBtnBack   = document.getElementById('btnMaangaBack');
+        mBtnZoomIn = document.getElementById('maangaBtnZoomIn');
+        mBtnZoomOut = document.getElementById('maangaBtnZoomOut');
+    }
+
+    function applyZoom() {
+        if (!mImg) return;
+        if (zoomLevel > 1) {
+            mImg.classList.add('zoomed-in');
+            mImg.style.transform = `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)`;
+            mImg.style.cursor = 'grab';
+            mImg.style.touchAction = 'none';
+        } else {
+            mImg.classList.remove('zoomed-in');
+            mImg.style.transform = '';
+            mImg.style.cursor = 'default';
+            mImg.style.touchAction = '';
+            translateX = 0;
+            translateY = 0;
+        }
+    }
+
+    function mShow(idx) {
+        zoomLevel = 1;
+        translateX = 0;
+        translateY = 0;
+        applyZoom();
+
+        maangaIdx = (idx + maangaArchives.length) % maangaArchives.length;
+        const src = MAANGA_DIR + maangaArchives[maangaIdx];
+
+        const mainEl = mOverlay ? mOverlay.querySelector('.catalog-main') : null;
+        if (mainEl && window.innerWidth <= 768) {
+            mainEl.classList.add('showcase-active');
+        }
+
+        if (mImg) {
+            mImg.style.opacity = '0';
+            setTimeout(() => { mImg.src = src; mImg.style.opacity = '1'; }, 130);
+        }
+        if (mRefName) mRefName.textContent = 'Maanga Maalai Design #' + (maangaIdx + 1);
+        if (mCounter) mCounter.textContent  = (maangaIdx + 1) + ' / ' + maangaArchives.length;
+        if (mGrid) {
+            mGrid.querySelectorAll('img').forEach((t, i) => {
+                t.style.border     = i === maangaIdx ? '2px solid #bf953f' : '1px solid rgba(255,255,255,0.08)';
+                t.style.boxShadow  = i === maangaIdx ? '0 0 10px rgba(191,149,63,0.5)' : 'none';
+                if (i === maangaIdx) t.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            });
+        }
+    }
+
+    function mBuildGrid() {
+        if (!mGrid || maangaReady) return;
+        maangaReady = true;
+        mGrid.innerHTML = '';
+        maangaArchives.forEach((file, idx) => {
+            const img = document.createElement('img');
+            img.src     = MAANGA_DIR + file;
+            img.alt     = 'Maanga Maalai #' + (idx + 1);
+            img.loading = 'lazy';
+            img.style.cssText = 'width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;border-radius:4px;cursor:pointer;transition:all 0.2s;border:1px solid rgba(255,255,255,0.08);background:#111';
+            img.addEventListener('click', () => mShow(idx));
+            mGrid.appendChild(img);
+        });
+    }
+
+    window.openMaangaCatalog = function () {
+        mResolve();
+        if (!mOverlay) return;
+        mBuildGrid();
+        mShow(maangaIdx);
+        mOverlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        if (!mOverlay.dataset.wired) {
+            mOverlay.dataset.wired = '1';
+            mBtnBack.addEventListener('click',  window.closeMaangaCatalog);
+            mBtnPrev.addEventListener('click',  () => mShow(maangaIdx - 1));
+            mBtnNext.addEventListener('click',  () => mShow(maangaIdx + 1));
+
+            document.addEventListener('keydown', e => {
+                if (mOverlay.style.display !== 'flex') return;
+                if (e.key === 'ArrowLeft')  mShow(maangaIdx - 1);
+                if (e.key === 'ArrowRight') mShow(maangaIdx + 1);
+                if (e.key === 'Escape')     window.closeMaangaCatalog();
+            });
+
+            // Swipe on canvas section
+            const canvas = mOverlay.querySelector('section');
+            if (canvas) {
+                let sx = 0;
+                canvas.addEventListener('touchstart', e => { sx = e.changedTouches[0].screenX; }, { passive: true });
+                canvas.addEventListener('touchend',   e => {
+                    const dx = e.changedTouches[0].screenX - sx;
+                    if (Math.abs(dx) > 50) mShow(maangaIdx + (dx < 0 ? 1 : -1));
+                }, { passive: true });
+            }
+
+            // Zoom controls
+            if (mBtnZoomIn) {
+                mBtnZoomIn.addEventListener('click', () => {
+                    if (zoomLevel < 4) {
+                        zoomLevel += 0.5;
+                        applyZoom();
+                    }
+                });
+            }
+            if (mBtnZoomOut) {
+                mBtnZoomOut.addEventListener('click', () => {
+                    if (zoomLevel > 1) {
+                        zoomLevel -= 0.5;
+                        applyZoom();
+                    }
+                });
+            }
+
+            // Drag to pan logic on display image
+            if (mImg) {
+                mImg.addEventListener('mousedown', e => {
+                    if (zoomLevel <= 1) return;
+                    e.preventDefault();
+                    isDragging = true;
+                    startX = e.clientX - translateX * zoomLevel;
+                    startY = e.clientY - translateY * zoomLevel;
+                    mImg.style.cursor = 'grabbing';
+                });
+
+                window.addEventListener('mousemove', e => {
+                    if (!isDragging) return;
+                    translateX = (e.clientX - startX) / zoomLevel;
+                    translateY = (e.clientY - startY) / zoomLevel;
+                    applyZoom();
+                });
+
+                window.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        mImg.style.cursor = 'grab';
+                    }
+                });
+
+                // Mobile touch support
+                mImg.addEventListener('touchstart', e => {
+                    if (zoomLevel <= 1) return;
+                    isDragging = true;
+                    startX = e.touches[0].clientX - translateX * zoomLevel;
+                    startY = e.touches[0].clientY - translateY * zoomLevel;
+                }, { passive: true });
+
+                mImg.addEventListener('touchmove', e => {
+                    if (!isDragging) return;
+                    if (e.cancelable) e.preventDefault();
+                    translateX = (e.touches[0].clientX - startX) / zoomLevel;
+                    translateY = (e.touches[0].clientY - startY) / zoomLevel;
+                    applyZoom();
+                }, { passive: false });
+
+                mImg.addEventListener('touchend', () => {
+                    isDragging = false;
+                });
+            }
+
+            mBtnVault.addEventListener('click', () => {
+                const file = maangaArchives[maangaIdx];
+                const cart = JSON.parse(localStorage.getItem('ad_jewels_cart') || '[]');
+                cart.push({
+                    id:     Date.now() + Math.random().toString(36).substr(2, 5),
+                    design: 'mangamalai',
+                    name:   'Maanga Maalai Choker',
+                    specs:  'Purity: 22K Yellow Gold | Est. Weight: 95g | Accents: recurrent mango settings',
+                    notes:  '[Reference Photo: ' + file + ']',
+                    image:  MAANGA_DIR + file
+                });
+                localStorage.setItem('ad_jewels_cart', JSON.stringify(cart));
+                const orig = mBtnVault.textContent;
+                mBtnVault.textContent = '\u2726 Added to Vault! \u2726';
+                mBtnVault.style.background = '#fcf6ba';
+                setTimeout(() => { mBtnVault.textContent = orig; mBtnVault.style.background = '#bf953f'; }, 2000);
+            });
+        }
+    };
+
+    window.closeMaangaCatalog = function () {
+        mResolve();
+        if (!mOverlay) return;
+        mOverlay.style.display = 'none';
+        document.body.style.overflow = '';
+        const gallery = document.getElementById('gallery');
+        if (gallery) setTimeout(() => gallery.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+    };
+
+}());
+
+/* ==========================================================================
+   ODDIYANAM HERITAGE CATALOG — IN-PAGE OVERLAY CONTROLLER
+   ========================================================================== */
+(function () {
+    'use strict';
+
+    const oddiyanamArchives = [
+        "1.jpeg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg", "7.jpg", "8.jpg", "9.jpg", "10.jpg",
+        "11.jpg", "12.jpg", "13.jpg", "14.jpg", "15.jpg", "16.jpg", "17.jpg", "18.jpg", "19.jpg", "20.jpg",
+        "21.jpg", "22.jpg", "23.jpg", "24.jpg", "25.jpg", "26.jpg", "27.jpg", "28.jpg", "29.jpg", "30.jpg",
+        "31.jpg", "32.jpg", "33.jpg", "34.jpg", "35.jpg", "36.jpg", "37.jpg", "38.jpg", "39.jpg", "40.jpg",
+        "41.jpg", "42.jpg", "43.jpg", "44.jpg", "45.jpg", "46.jpg"
+    ];
+    const ODDIYANAM_DIR = './Oddiyanam/';
+
+    let oddiyanamIdx = 0;
+    let oddiyanamReady = false;
+
+    // ---- Zoom state variables ----
+    let zoomLevel = 1;
+    let translateX = 0;
+    let translateY = 0;
+    let isDragging = false;
+    let startX = 0, startY = 0;
+
+    let oOverlay, oGrid, oImg, oBtnPrev, oBtnNext, oRefName, oCounter, oBtnVault, oBtnBack, oBtnZoomIn, oBtnZoomOut;
+
+    function oResolve() {
+        oOverlay   = document.getElementById('oddiyanamCatalogOverlay');
+        oGrid      = document.getElementById('oddiyanamCatalogGrid');
+        oImg       = document.getElementById('oddiyanamImgDisplay');
+        oBtnPrev   = document.getElementById('oddiyanamBtnPrev');
+        oBtnNext   = document.getElementById('oddiyanamBtnNext');
+        oRefName   = document.getElementById('oddiyanamRefName');
+        oCounter   = document.getElementById('oddiyanamCounter');
+        oBtnVault  = document.getElementById('oddiyanamBtnVault');
+        oBtnBack   = document.getElementById('btnOddiyanamBack');
+        oBtnZoomIn = document.getElementById('oddiyanamBtnZoomIn');
+        oBtnZoomOut = document.getElementById('oddiyanamBtnZoomOut');
+    }
+
+    function applyZoom() {
+        if (!oImg) return;
+        if (zoomLevel > 1) {
+            oImg.classList.add('zoomed-in');
+            oImg.style.transform = `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)`;
+            oImg.style.cursor = 'grab';
+            oImg.style.touchAction = 'none';
+        } else {
+            oImg.classList.remove('zoomed-in');
+            oImg.style.transform = '';
+            oImg.style.cursor = 'default';
+            oImg.style.touchAction = '';
+            translateX = 0;
+            translateY = 0;
+        }
+    }
+
+    function oShow(idx) {
+        zoomLevel = 1;
+        translateX = 0;
+        translateY = 0;
+        applyZoom();
+
+        oddiyanamIdx = (idx + oddiyanamArchives.length) % oddiyanamArchives.length;
+        const src = ODDIYANAM_DIR + oddiyanamArchives[oddiyanamIdx];
+
+        const mainEl = oOverlay ? oOverlay.querySelector('.catalog-main') : null;
+        if (mainEl && window.innerWidth <= 768) {
+            mainEl.classList.add('showcase-active');
+        }
+
+        if (oImg) {
+            oImg.style.opacity = '0';
+            setTimeout(() => { oImg.src = src; oImg.style.opacity = '1'; }, 130);
+        }
+        if (oRefName) oRefName.textContent = 'Oddiyanam Design #' + (oddiyanamIdx + 1);
+        if (oCounter) oCounter.textContent  = (oddiyanamIdx + 1) + ' / ' + oddiyanamArchives.length;
+        if (oGrid) {
+            oGrid.querySelectorAll('img').forEach((t, i) => {
+                t.style.border     = i === oddiyanamIdx ? '2px solid #bf953f' : '1px solid rgba(255,255,255,0.08)';
+                t.style.boxShadow  = i === oddiyanamIdx ? '0 0 10px rgba(191,149,63,0.5)' : 'none';
+                if (i === oddiyanamIdx) t.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            });
+        }
+    }
+
+    function oBuildGrid() {
+        if (!oGrid || oddiyanamReady) return;
+        oddiyanamReady = true;
+        oGrid.innerHTML = '';
+        oddiyanamArchives.forEach((file, idx) => {
+            const img = document.createElement('img');
+            img.src     = ODDIYANAM_DIR + file;
+            img.alt     = 'Oddiyanam #' + (idx + 1);
+            img.loading = 'lazy';
+            img.style.cssText = 'width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;border-radius:4px;cursor:pointer;transition:all 0.2s;border:1px solid rgba(255,255,255,0.08);background:#111';
+            img.addEventListener('click', () => oShow(idx));
+            oGrid.appendChild(img);
+        });
+    }
+
+    window.openOddiyanamCatalog = function () {
+        oResolve();
+        if (!oOverlay) return;
+        oBuildGrid();
+        oShow(oddiyanamIdx);
+        oOverlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        if (!oOverlay.dataset.wired) {
+            oOverlay.dataset.wired = '1';
+            oBtnBack.addEventListener('click',  window.closeOddiyanamCatalog);
+            oBtnPrev.addEventListener('click',  () => oShow(oddiyanamIdx - 1));
+            oBtnNext.addEventListener('click',  () => oShow(oddiyanamIdx + 1));
+
+            document.addEventListener('keydown', e => {
+                if (oOverlay.style.display !== 'flex') return;
+                if (e.key === 'ArrowLeft')  oShow(oddiyanamIdx - 1);
+                if (e.key === 'ArrowRight') oShow(oddiyanamIdx + 1);
+                if (e.key === 'Escape')     window.closeOddiyanamCatalog();
+            });
+
+            // Swipe on canvas section
+            const canvas = oOverlay.querySelector('section');
+            if (canvas) {
+                let sx = 0;
+                canvas.addEventListener('touchstart', e => { sx = e.changedTouches[0].screenX; }, { passive: true });
+                canvas.addEventListener('touchend',   e => {
+                    const dx = e.changedTouches[0].screenX - sx;
+                    if (Math.abs(dx) > 50) oShow(oddiyanamIdx + (dx < 0 ? 1 : -1));
+                }, { passive: true });
+            }
+
+            // Zoom controls
+            if (oBtnZoomIn) {
+                oBtnZoomIn.addEventListener('click', () => {
+                    if (zoomLevel < 4) {
+                        zoomLevel += 0.5;
+                        applyZoom();
+                    }
+                });
+            }
+            if (oBtnZoomOut) {
+                oBtnZoomOut.addEventListener('click', () => {
+                    if (zoomLevel > 1) {
+                        zoomLevel -= 0.5;
+                        applyZoom();
+                    }
+                });
+            }
+
+            // Drag to pan logic on display image
+            if (oImg) {
+                oImg.addEventListener('mousedown', e => {
+                    if (zoomLevel <= 1) return;
+                    e.preventDefault();
+                    isDragging = true;
+                    startX = e.clientX - translateX * zoomLevel;
+                    startY = e.clientY - translateY * zoomLevel;
+                    oImg.style.cursor = 'grabbing';
+                });
+
+                window.addEventListener('mousemove', e => {
+                    if (!isDragging) return;
+                    translateX = (e.clientX - startX) / zoomLevel;
+                    translateY = (e.clientY - startY) / zoomLevel;
+                    applyZoom();
+                });
+
+                window.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        oImg.style.cursor = 'grab';
+                    }
+                });
+
+                // Mobile touch support
+                oImg.addEventListener('touchstart', e => {
+                    if (zoomLevel <= 1) return;
+                    isDragging = true;
+                    startX = e.touches[0].clientX - translateX * zoomLevel;
+                    startY = e.touches[0].clientY - translateY * zoomLevel;
+                }, { passive: true });
+
+                imgDisplay = oImg; // Ensure it behaves same way
+                oImg.addEventListener('touchmove', e => {
+                    if (!isDragging) return;
+                    if (e.cancelable) e.preventDefault();
+                    translateX = (e.touches[0].clientX - startX) / zoomLevel;
+                    translateY = (e.touches[0].clientY - startY) / zoomLevel;
+                    applyZoom();
+                }, { passive: false });
+
+                oImg.addEventListener('touchend', () => {
+                    isDragging = false;
+                });
+            }
+
+            oBtnVault.addEventListener('click', () => {
+                const file = oddiyanamArchives[oddiyanamIdx];
+                const cart = JSON.parse(localStorage.getItem('ad_jewels_cart') || '[]');
+                cart.push({
+                    id:     Date.now() + Math.random().toString(36).substr(2, 5),
+                    design: 'oddiyanam',
+                    name:   'Gaja Lakshmi Oddiyanam',
+                    specs:  'Purity: 22K Yellow Gold | Est. Weight: 210g | Accents: Kemp Rubies & Carved Peacocks',
+                    notes:  '[Reference Photo: ' + file + ']',
+                    image:  ODDIYANAM_DIR + file
+                });
+                localStorage.setItem('ad_jewels_cart', JSON.stringify(cart));
+                const orig = oBtnVault.textContent;
+                oBtnVault.textContent = '\u2726 Added to Vault! \u2726';
+                oBtnVault.style.background = '#fcf6ba';
+                setTimeout(() => { oBtnVault.textContent = orig; oBtnVault.style.background = '#bf953f'; }, 2000);
+            });
+        }
+    };
+
+    window.closeOddiyanamCatalog = function () {
+        oResolve();
+        if (!oOverlay) return;
+        oOverlay.style.display = 'none';
+        document.body.style.overflow = '';
+        const gallery = document.getElementById('gallery');
+        if (gallery) setTimeout(() => gallery.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+    };
+
+}());
+
 document.addEventListener('DOMContentLoaded', () => {
     'use strict';
+
+    // Helper to resolve API URLs dynamically based on the page's host/origin
+    function getApiUrl(endpoint) {
+        const customUrl = localStorage.getItem('ad_jewels_api_url');
+        if (customUrl) {
+            return customUrl.replace(/\/$/, '') + endpoint;
+        }
+        const isSameOrigin = window.location.protocol === 'http:' && window.location.port === '8000';
+        const host = isSameOrigin ? '' : 'http://localhost:8000';
+        return host + endpoint;
+    }
 
     // Application state
     const state = {
@@ -580,6 +1338,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnNextArchive = document.getElementById('btnNextArchive');
     const imgArchiveDisplay = document.getElementById('imgArchiveDisplay');
     const archiveCounter = document.getElementById('archiveCounter');
+    const btnZoomInArchive = document.getElementById('btnZoomInArchive');
+    const btnZoomOutArchive = document.getElementById('btnZoomOutArchive');
+
+    // ---- Zoom state variables ----
+    let archiveZoomLevel = 1;
+    let archiveTranslateX = 0;
+    let archiveTranslateY = 0;
+    let archiveIsDragging = false;
+    let archiveStartX = 0, archiveStartY = 0;
+
+    function applyArchiveZoom() {
+        if (!imgArchiveDisplay) return;
+        if (archiveZoomLevel > 1) {
+            imgArchiveDisplay.classList.add('zoomed-in');
+            imgArchiveDisplay.style.transform = `scale(${archiveZoomLevel}) translate(${archiveTranslateX}px, ${archiveTranslateY}px)`;
+            imgArchiveDisplay.style.cursor = 'grab';
+            imgArchiveDisplay.style.touchAction = 'none';
+        } else {
+            imgArchiveDisplay.classList.remove('zoomed-in');
+            imgArchiveDisplay.style.transform = '';
+            imgArchiveDisplay.style.cursor = 'default';
+            imgArchiveDisplay.style.touchAction = '';
+            archiveTranslateX = 0;
+            archiveTranslateY = 0;
+        }
+    }
 
     // Complete archive of real photographs — filenames updated to sequential numbering (1.jpg–104.jpg)
     const jimikkiArchives = [
@@ -609,6 +1393,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeArchiveIdx = 0;
 
     function updateArchiveSlider() {
+        archiveZoomLevel = 1;
+        archiveTranslateX = 0;
+        archiveTranslateY = 0;
+        applyArchiveZoom();
+
         if (!imgArchiveDisplay) return;
         const targetSrc = `./jimiki/${jimikkiArchives[activeArchiveIdx]}`;
         const currentSrc = imgArchiveDisplay.getAttribute('src');
@@ -704,6 +1493,70 @@ document.addEventListener('DOMContentLoaded', () => {
             e.stopPropagation();
             activeArchiveIdx = (activeArchiveIdx + 1) % jimikkiArchives.length;
             updateArchiveSlider();
+        });
+    }
+
+    // Zoom controls listeners
+    if (btnZoomInArchive) {
+        btnZoomInArchive.addEventListener('click', () => {
+            if (archiveZoomLevel < 4) {
+                archiveZoomLevel += 0.5;
+                applyArchiveZoom();
+            }
+        });
+    }
+    if (btnZoomOutArchive) {
+        btnZoomOutArchive.addEventListener('click', () => {
+            if (archiveZoomLevel > 1) {
+                archiveZoomLevel -= 0.5;
+                applyArchiveZoom();
+            }
+        });
+    }
+
+    // Drag to pan logic on display image
+    if (imgArchiveDisplay) {
+        imgArchiveDisplay.addEventListener('mousedown', e => {
+            if (archiveZoomLevel <= 1) return;
+            e.preventDefault();
+            archiveIsDragging = true;
+            archiveStartX = e.clientX - archiveTranslateX * archiveZoomLevel;
+            archiveStartY = e.clientY - archiveTranslateY * archiveZoomLevel;
+            imgArchiveDisplay.style.cursor = 'grabbing';
+        });
+
+        window.addEventListener('mousemove', e => {
+            if (!archiveIsDragging) return;
+            archiveTranslateX = (e.clientX - archiveStartX) / archiveZoomLevel;
+            archiveTranslateY = (e.clientY - archiveStartY) / archiveZoomLevel;
+            applyArchiveZoom();
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (archiveIsDragging) {
+                archiveIsDragging = false;
+                imgArchiveDisplay.style.cursor = 'grab';
+            }
+        });
+
+        // Mobile touch support
+        imgArchiveDisplay.addEventListener('touchstart', e => {
+            if (archiveZoomLevel <= 1) return;
+            archiveIsDragging = true;
+            archiveStartX = e.touches[0].clientX - archiveTranslateX * archiveZoomLevel;
+            archiveStartY = e.touches[0].clientY - archiveTranslateY * archiveZoomLevel;
+        }, { passive: true });
+
+        imgArchiveDisplay.addEventListener('touchmove', e => {
+            if (!archiveIsDragging) return;
+            if (e.cancelable) e.preventDefault();
+            archiveTranslateX = (e.touches[0].clientX - archiveStartX) / archiveZoomLevel;
+            archiveTranslateY = (e.touches[0].clientY - archiveStartY) / archiveZoomLevel;
+            applyArchiveZoom();
+        }, { passive: false });
+
+        imgArchiveDisplay.addEventListener('touchend', () => {
+            archiveIsDragging = false;
         });
     }
 
@@ -959,7 +1812,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 finalNotes = `${finalNotes ? finalNotes + '\n' : ''}[Reference Photo: ${refPhoto}]`;
             }
 
-            fetch('/api/bookings', {
+            fetch(getApiUrl('/api/bookings'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -1038,12 +1891,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
         btn.addEventListener('click', () => {
             const target = btn.getAttribute('data-target');
-            const targetCard = document.querySelector(`.catalog-item[data-product-info="${target}"]`);
+            // Normalize target keys to match exact catalog item values
+            let normalizedTarget = target;
+            if (target === 'kasumalai') normalizedTarget = 'kaasu maalai';
+            if (target === 'mangamalai') normalizedTarget = 'maanga maalai';
+
+            const targetCard = document.querySelector(`.catalog-item[data-product-info="${normalizedTarget}"]`);
             if (targetCard) {
+                // Determine category of the target card (women or men)
+                const category = targetCard.getAttribute('data-item-category') || 'women';
+                
+                // Find and click the correct tab button first
+                const tabBtn = document.querySelector(`.gallery-tab-btn[data-category="${category}"]`);
+                if (tabBtn && !tabBtn.classList.contains('active')) {
+                    tabBtn.click();
+                }
+
+                // Click the card to activate it
                 targetCard.click();
-                const gallerySection = document.getElementById('gallery');
-                if (gallerySection) {
-                    gallerySection.scrollIntoView({ behavior: 'smooth' });
+
+                // Directly launch the catalog overlay if it exists (no scroll, no delay)
+                let openedCatalog = false;
+                if (normalizedTarget === 'kaasu maalai' && typeof window.openKaasuMaalaiCatalog === 'function') {
+                    window.openKaasuMaalaiCatalog();
+                    openedCatalog = true;
+                } else if (normalizedTarget === 'jimikki' && typeof window.openJimikkiCatalog === 'function') {
+                    window.openJimikkiCatalog();
+                    openedCatalog = true;
+                } else if (normalizedTarget === 'vanki' && typeof window.openVankiCatalog === 'function') {
+                    window.openVankiCatalog();
+                    openedCatalog = true;
+                } else if (normalizedTarget === 'maanga maalai' && typeof window.openMaangaCatalog === 'function') {
+                    window.openMaangaCatalog();
+                    openedCatalog = true;
+                } else if (normalizedTarget === 'oddiyanam' && typeof window.openOddiyanamCatalog === 'function') {
+                    window.openOddiyanamCatalog();
+                    openedCatalog = true;
+                }
+
+                // Only scroll to the gallery if we did NOT open a full-screen catalog overlay (e.g. for Thusi)
+                if (!openedCatalog) {
+                    const gallerySection = document.getElementById('gallery');
+                    if (gallerySection) {
+                        gallerySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
                 }
             }
         });
@@ -1107,7 +1998,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.textContent = 'Requesting Invitation...';
             submitBtn.disabled = true;
 
-            fetch('/api/bookings', {
+            fetch(getApiUrl('/api/bookings'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -1358,7 +2249,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.textContent = 'Authenticating...';
             submitBtn.disabled = true;
 
-            fetch('/api/auth/login', {
+            fetch(getApiUrl('/api/auth/login'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -1408,7 +2299,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.textContent = 'Registering Account...';
             submitBtn.disabled = true;
 
-            fetch('/api/auth/register', {
+            fetch(getApiUrl('/api/auth/register'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -2000,7 +2891,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.textContent = 'Unlocking Vault...';
             submitBtn.disabled = true;
 
-            fetch('/api/bookings/lookup', {
+            fetch(getApiUrl('/api/bookings/lookup'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
