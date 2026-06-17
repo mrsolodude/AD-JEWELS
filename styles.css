@@ -209,7 +209,7 @@ a {
 .luxury-nav {
     display: flex;
     align-items: center;
-    gap: 2.5rem;
+    gap: 1.5rem;
 }
 
 .nav-link {
@@ -2576,6 +2576,15 @@ body.subpage-active {
 /* Disable transition on image during active pan/zoom to keep drag feedback instant */
 .showcase-canvas img.zoomed-in {
     transition: none !important;
+}
+
+/* Fix header navigation overflow for medium viewports */
+@media (max-width: 1200px) and (min-width: 769px) {
+    .luxury-nav { gap: 0.75rem !important; }
+    .nav-link { font-size: 0.78rem !important; }
+    .header-container { padding: 1rem 1.25rem !important; }
+    .brand-logo { font-size: 1.4rem !important; }
+    .btn-primary { padding: 0.6rem 1.2rem !important; font-size: 0.75rem !important; }
 }
 
 
