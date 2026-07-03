@@ -2442,6 +2442,7 @@ body.subpage-active {
         position: absolute !important;
         top: 16px !important;
         left: 16px !important;
+        right: auto !important;
         background: rgba(0, 0, 0, 0.75) !important;
         border: 1px solid rgba(191, 149, 63, 0.4) !important;
         color: #bf953f !important;
@@ -2520,6 +2521,7 @@ body.subpage-active {
         flex-direction: row !important;
         top: 16px !important;
         right: 16px !important;
+        left: auto !important;
         gap: 8px !important;
     }
 }
@@ -2554,6 +2556,7 @@ body.subpage-active {
     position: absolute;
     top: 16px;
     right: 16px;
+    left: auto;
     display: flex;
     flex-direction: column;
     gap: 8px;
