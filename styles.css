@@ -2420,16 +2420,14 @@ body.subpage-active {
     }
 
     .catalog-main.showcase-active .showcase-canvas {
-        display: flex !important;
+        display: block !important;
         position: absolute !important;
         inset: 0 !important;
         width: 100% !important;
         height: 100% !important;
         z-index: 50 !important;
         background: #000000 !important;
-        padding: 1rem !important;
-        justify-content: center !important;
-        align-items: center !important;
+        padding: 0 !important;
     }
 
     /* Make close button (Back to Grid) visible inside the showcase modal */
@@ -2451,7 +2449,7 @@ body.subpage-active {
         font-size: 0.72rem !important;
         text-transform: uppercase !important;
         font-weight: 600 !important;
-        z-index: 100 !important;
+        z-index: 150 !important;
         backdrop-filter: blur(5px) !important;
     }
 
@@ -2461,16 +2459,23 @@ body.subpage-active {
     .catalog-main.showcase-active .showcase-canvas #kaasuImgDisplay,
     .catalog-main.showcase-active .showcase-canvas #vankiImgDisplay,
     .catalog-main.showcase-active .showcase-canvas #maangaImgDisplay,
-    .catalog-main.showcase-active .showcase-canvas #oddiyanamImgDisplay {
+    .catalog-main.showcase-active .showcase-canvas #oddiyanamImgDisplay,
+    .catalog-main.showcase-active .showcase-canvas #nethichuttiImgDisplay {
+        display: block !important;
+        position: absolute !important;
+        top: 0 !important;
+        bottom: 95px !important;
+        left: 0 !important;
+        right: 0 !important;
+        margin: auto !important;
         max-width: 92% !important;
-        max-height: 60vh !important; /* Majestic large size! */
-        margin-bottom: 95px !important; /* clearance for the bottom card */
+        max-height: 60vh !important;
         border-radius: 8px !important;
         box-shadow: 0 15px 45px rgba(0, 0, 0, 0.9) !important;
     }
 
     /* Reposition and scale the absolute positioned info card */
-    .catalog-main.showcase-active .showcase-canvas > div {
+    .catalog-main.showcase-active .showcase-canvas .selection-info-card {
         bottom: 24px !important;
         left: 50% !important;
         transform: translateX(-50%) !important;
@@ -2481,15 +2486,15 @@ body.subpage-active {
     }
 
     /* Adjust typography sizing in selections panel for mobile */
-    .showcase-canvas > div span {
+    .showcase-canvas .selection-info-card span {
         font-size: 0.58rem !important;
     }
     
-    .showcase-canvas > div strong {
+    .showcase-canvas .selection-info-card strong {
         font-size: 0.78rem !important;
     }
 
-    .showcase-canvas > div button {
+    .showcase-canvas .selection-info-card button {
         font-size: 0.62rem !important;
         padding: 0.4rem 0.8rem !important;
         margin-top: 0.05rem !important;
@@ -2504,6 +2509,7 @@ body.subpage-active {
         height: 44px !important;
         font-size: 1.6rem !important;
         top: 45% !important; /* aligns with centered display image */
+        z-index: 150 !important;
     }
 
     .showcase-canvas button[id*="Prev"],
@@ -2523,6 +2529,7 @@ body.subpage-active {
         right: 16px !important;
         left: auto !important;
         gap: 8px !important;
+        z-index: 150 !important;
     }
 }
 
