@@ -485,6 +485,11 @@
                                     Kemp Rubies & Natural Pearls</p>
                                 <span class="catalog-item-action">Select Masterpiece</span>
                             </div>
+                            <!-- Open in-page Nethi Chutti Catalog Overlay (no reload) -->
+                            <button onclick="event.stopPropagation(); openNethichuttiCatalog();" class="subpage-catalog-btn"
+                                style="display: block; width: 100%; text-align: center; margin-top: 0.5rem; padding: 0.65rem 1rem; background: rgba(191,149,63,0.1); border: 1px dashed var(--text-gold); border-radius: 4px; color: var(--text-gold); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; transition: all 0.25s ease; cursor: pointer; font-family: 'Outfit', sans-serif;">
+                                Open Nethi Chutti Catalog (110 Designs) ➤
+                            </button>
                         </div>
 
                         <div class="catalog-item" data-product-info="bridalset" data-item-category="women">
@@ -1628,6 +1633,91 @@
                     <strong id="oddiyanamRefName" style="color: #fff; font-size: 0.82rem; font-weight: 500;">Gaja Lakshmi Oddiyanam Design #1</strong>
                     <span id="oddiyanamCounter" style="color: #888; font-size: 0.68rem; font-weight: 300;">1 / 46</span>
                     <button id="oddiyanamBtnVault" type="button"
+                        style="background: #bf953f; color: #000; border: none; padding: 0.45rem 0.9rem; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.25s ease; margin-top: 0.1rem;">
+                        &#10022; Add to my Vault &#10022;
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ====================================================================
+         CHOLA NETHI CHUTTI HERITAGE CATALOG OVERLAY
+         ==================================================================== -->
+    <div id="nethichuttiCatalogOverlay" style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9005;
+        background: #050505;
+        flex-direction: column;
+        font-family: 'Outfit', sans-serif;
+    ">
+        <!-- Overlay Header -->
+        <header
+            style="background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(191,149,63,0.18); padding: 0 2rem; z-index: 10; width: 100%; display: flex; align-items: center; justify-content: space-between; height: 64px; flex-shrink: 0; box-sizing: border-box;">
+            <button id="btnNethichuttiBack"
+                style="background: none; border: none; color: #bf953f; font-size: 0.85rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-family: 'Outfit', sans-serif; transition: color 0.2s;">
+                <span style="font-size: 1.2rem; line-height: 1;">&#8592;</span> Back to Masterpieces
+            </button>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <img src="logo.png" alt="AD JEWELS"
+                    style="height: 34px; width: auto; object-fit: contain; border-radius: 50%;">
+                <span
+                    style="font-family: 'Cinzel Decorative', serif; color: #bf953f; font-weight: 700; letter-spacing: 0.1em; font-size: 1rem;">AD
+                    JEWELS</span>
+            </div>
+            <div style="width: 160px;"></div>
+        </header>
+
+        <!-- Overlay Body: Sidebar + Canvas -->
+        <main class="catalog-main" style="display: flex; flex: 1; overflow: hidden; min-height: 0;">
+
+            <!-- Left Sidebar Thumbnail Strip -->
+            <aside class="sidebar-thumbnails"
+                style="width: 300px; border-right: 1px solid rgba(191,149,63,0.15); background: #0a0a0a; display: flex; flex-direction: column; flex-shrink: 0; height: 100%; overflow: hidden;">
+                <div
+                    style="padding: 1.1rem 1.25rem; border-bottom: 1px solid rgba(191,149,63,0.1); background: rgba(0,0,0,0.3);">
+                    <span
+                        style="color: #bf953f; font-size: 0.62rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 0.2rem;">Heritage
+                        References</span>
+                    <h3
+                        style="font-family: 'Cinzel Decorative', serif; font-size: 0.95rem; color: #fff; margin: 0; font-weight: 700;">
+                        Nethi Chutti Archive (110)</h3>
+                </div>
+                <div id="nethichuttiCatalogGrid" class="sidebar-thumb-grid"
+                    style="flex: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 1.1rem;">
+                </div>
+            </aside>
+
+            <!-- Right Canvas: Large Image -->
+            <section class="showcase-canvas"
+                style="flex: 1; position: relative; background: #000; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+                <button class="close-showcase-btn" type="button" aria-label="Back to Grid"
+                    style="display: none; position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.75); border: 1px solid rgba(191,149,63,0.4); color: #bf953f; border-radius: 4px; padding: 6px 14px; font-size: 0.72rem; text-transform: uppercase; font-weight: 600; font-family: 'Outfit', sans-serif; cursor: pointer; z-index: 100; backdrop-filter: blur(5px);">←
+                    Grid</button>
+                <div class="zoom-controls">
+                    <button id="nethichuttiBtnZoomIn" class="zoom-btn zoom-in" type="button" aria-label="Zoom In">+</button>
+                    <button id="nethichuttiBtnZoomOut" class="zoom-btn zoom-out" type="button" aria-label="Zoom Out">-</button>
+                </div>
+                <button id="nethichuttiBtnPrev" type="button" aria-label="Previous"
+                    style="position: absolute; left: 18px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); border: 1px solid rgba(191,149,63,0.35); color: #bf953f; width: 44px; height: 44px; border-radius: 50%; font-size: 1.6rem; cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">&#8249;</button>
+
+                <img id="nethichuttiImgDisplay" src="" alt="Selected Chola Nethi Chutti Design"
+                    style="max-width: 88%; max-height: 88%; object-fit: contain; transition: opacity 0.2s ease; display: block; border-radius: 4px; box-shadow: 0 20px 60px rgba(0,0,0,0.8);">
+
+                <button id="nethichuttiBtnNext" type="button" aria-label="Next"
+                    style="position: absolute; right: 18px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); border: 1px solid rgba(191,149,63,0.35); color: #bf953f; width: 44px; height: 44px; border-radius: 50%; font-size: 1.6rem; cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">&#8250;</button>
+
+                <!-- Info + Add to Vault bar -->
+                <div
+                    style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.88); border: 1px solid rgba(191,149,63,0.3); border-radius: 6px; padding: 0.85rem 1.4rem; text-align: center; backdrop-filter: blur(10px); z-index: 10; display: flex; flex-direction: column; gap: 0.45rem; min-width: 280px; box-shadow: 0 5px 20px rgba(0,0,0,0.6);">
+                    <span
+                        style="font-size: 0.6rem; color: #bf953f; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;">Selected
+                        Design Reference</span>
+                    <strong id="nethichuttiRefName" style="color: #fff; font-size: 0.82rem; font-weight: 500;">Chola Nethi Chutti Design #1</strong>
+                    <span id="nethichuttiCounter" style="color: #888; font-size: 0.68rem; font-weight: 300;">1 / 110</span>
+                    <button id="nethichuttiBtnVault" type="button"
                         style="background: #bf953f; color: #000; border: none; padding: 0.45rem 0.9rem; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.25s ease; margin-top: 0.1rem;">
                         &#10022; Add to my Vault &#10022;
                     </button>

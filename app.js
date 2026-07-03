@@ -1199,6 +1199,238 @@
 
 }());
 
+/* ==========================================================================
+   CHOLA NETHI CHUTTI HERITAGE CATALOG — IN-PAGE OVERLAY CONTROLLER
+   ========================================================================== */
+(function () {
+    'use strict';
+
+    const nethiArchives = [];
+    for (let i = 1; i <= 110; i++) {
+        if (i === 8) {
+            nethiArchives.push("8.webp.jpg");
+        } else if (i === 12) {
+            nethiArchives.push("12.webp.jpg");
+        } else {
+            nethiArchives.push(i + ".jpg");
+        }
+    }
+    const NETHI_DIR = './Nethi%20chuti/';
+
+    let nethiIdx = 0;
+    let nethiReady = false;
+
+    // ---- Zoom state variables ----
+    let zoomLevel = 1;
+    let translateX = 0;
+    let translateY = 0;
+    let isDragging = false;
+    let startX = 0, startY = 0;
+
+    let nOverlay, nGrid, nImg, nBtnPrev, nBtnNext, nRefName, nCounter, nBtnVault, nBtnBack, nBtnZoomIn, nBtnZoomOut;
+
+    function nResolve() {
+        nOverlay   = document.getElementById('nethichuttiCatalogOverlay');
+        nGrid      = document.getElementById('nethichuttiCatalogGrid');
+        nImg       = document.getElementById('nethichuttiImgDisplay');
+        nBtnPrev   = document.getElementById('nethichuttiBtnPrev');
+        nBtnNext   = document.getElementById('nethichuttiBtnNext');
+        nRefName   = document.getElementById('nethichuttiRefName');
+        nCounter   = document.getElementById('nethichuttiCounter');
+        nBtnVault  = document.getElementById('nethichuttiBtnVault');
+        nBtnBack   = document.getElementById('btnNethichuttiBack');
+        nBtnZoomIn = document.getElementById('nethichuttiBtnZoomIn');
+        nBtnZoomOut = document.getElementById('nethichuttiBtnZoomOut');
+    }
+
+    function applyZoom() {
+        if (!nImg) return;
+        if (zoomLevel > 1) {
+            nImg.classList.add('zoomed-in');
+            nImg.style.transform = `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)`;
+            nImg.style.cursor = 'grab';
+            nImg.style.touchAction = 'none';
+        } else {
+            nImg.classList.remove('zoomed-in');
+            nImg.style.transform = '';
+            nImg.style.cursor = 'default';
+            nImg.style.touchAction = '';
+            translateX = 0;
+            translateY = 0;
+        }
+    }
+
+    function nShow(idx) {
+        zoomLevel = 1;
+        translateX = 0;
+        translateY = 0;
+        applyZoom();
+
+        nethiIdx = (idx + nethiArchives.length) % nethiArchives.length;
+        const src = NETHI_DIR + nethiArchives[nethiIdx];
+
+        const mainEl = nOverlay ? nOverlay.querySelector('.catalog-main') : null;
+        if (mainEl && window.innerWidth <= 768) {
+            mainEl.classList.add('showcase-active');
+        }
+
+        if (nImg) {
+            nImg.style.opacity = '0';
+            setTimeout(() => { nImg.src = src; nImg.style.opacity = '1'; }, 130);
+        }
+        if (nRefName) nRefName.textContent = 'Chola Nethi Chutti Design #' + (nethiIdx + 1);
+        if (nCounter) nCounter.textContent  = (nethiIdx + 1) + ' / ' + nethiArchives.length;
+        if (nGrid) {
+            nGrid.querySelectorAll('img').forEach((t, i) => {
+                t.style.border     = i === nethiIdx ? '2px solid #bf953f' : '1px solid rgba(255,255,255,0.08)';
+                t.style.boxShadow  = i === nethiIdx ? '0 0 10px rgba(191,149,63,0.5)' : 'none';
+                if (i === nethiIdx) t.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            });
+        }
+    }
+
+    function nBuildGrid() {
+        if (!nGrid || nethiReady) return;
+        nethiReady = true;
+        nGrid.innerHTML = '';
+        nethiArchives.forEach((file, idx) => {
+            const img = document.createElement('img');
+            img.src     = NETHI_DIR + file;
+            img.alt     = 'Chola Nethi Chutti #' + (idx + 1);
+            img.loading = 'lazy';
+            img.style.cssText = 'width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;border-radius:4px;cursor:pointer;transition:all 0.2s;border:1px solid rgba(255,255,255,0.08);background:#111';
+            img.addEventListener('click', () => nShow(idx));
+            nGrid.appendChild(img);
+        });
+    }
+
+    window.openNethichuttiCatalog = function () {
+        nResolve();
+        if (!nOverlay) return;
+        nBuildGrid();
+        nShow(nethiIdx);
+        nOverlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        if (!nOverlay.dataset.wired) {
+            nOverlay.dataset.wired = '1';
+            nBtnBack.addEventListener('click',  window.closeNethichuttiCatalog);
+            nBtnPrev.addEventListener('click',  () => nShow(nethiIdx - 1));
+            nBtnNext.addEventListener('click',  () => nShow(nethiIdx + 1));
+
+            document.addEventListener('keydown', e => {
+                if (nOverlay.style.display !== 'flex') return;
+                if (e.key === 'ArrowLeft')  nShow(nethiIdx - 1);
+                if (e.key === 'ArrowRight') nShow(nethiIdx + 1);
+                if (e.key === 'Escape')     window.closeNethichuttiCatalog();
+            });
+
+            // Swipe on canvas section
+            const canvas = nOverlay.querySelector('section');
+            if (canvas) {
+                let sx = 0;
+                canvas.addEventListener('touchstart', e => { sx = e.changedTouches[0].screenX; }, { passive: true });
+                canvas.addEventListener('touchend',   e => {
+                    const dx = e.changedTouches[0].screenX - sx;
+                    if (Math.abs(dx) > 50) nShow(nethiIdx + (dx < 0 ? 1 : -1));
+                }, { passive: true });
+            }
+
+            // Zoom controls
+            if (nBtnZoomIn) {
+                nBtnZoomIn.addEventListener('click', () => {
+                    if (zoomLevel < 4) {
+                        zoomLevel += 0.5;
+                        applyZoom();
+                    }
+                });
+            }
+            if (nBtnZoomOut) {
+                nBtnZoomOut.addEventListener('click', () => {
+                    if (zoomLevel > 1) {
+                        zoomLevel -= 0.5;
+                        applyZoom();
+                    }
+                });
+            }
+
+            // Drag to pan logic on display image
+            if (nImg) {
+                nImg.addEventListener('mousedown', e => {
+                    if (zoomLevel <= 1) return;
+                    e.preventDefault();
+                    isDragging = true;
+                    startX = e.clientX - translateX * zoomLevel;
+                    startY = e.clientY - translateY * zoomLevel;
+                    nImg.style.cursor = 'grabbing';
+                });
+
+                window.addEventListener('mousemove', e => {
+                    if (!isDragging) return;
+                    translateX = (e.clientX - startX) / zoomLevel;
+                    translateY = (e.clientY - startY) / zoomLevel;
+                    applyZoom();
+                });
+
+                window.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        nImg.style.cursor = 'grab';
+                    }
+                });
+
+                // Mobile touch support
+                nImg.addEventListener('touchstart', e => {
+                    if (zoomLevel <= 1) return;
+                    isDragging = true;
+                    startX = e.touches[0].clientX - translateX * zoomLevel;
+                    startY = e.touches[0].clientY - translateY * zoomLevel;
+                }, { passive: true });
+
+                nImg.addEventListener('touchmove', e => {
+                    if (!isDragging) return;
+                    if (e.cancelable) e.preventDefault();
+                    translateX = (e.touches[0].clientX - startX) / zoomLevel;
+                    translateY = (e.touches[0].clientY - startY) / zoomLevel;
+                    applyZoom();
+                }, { passive: false });
+
+                nImg.addEventListener('touchend', () => {
+                    isDragging = false;
+                });
+            }
+
+            nBtnVault.addEventListener('click', () => {
+                const file = nethiArchives[nethiIdx];
+                const cart = JSON.parse(localStorage.getItem('ad_jewels_cart') || '[]');
+                cart.push({
+                    id:     Date.now() + Math.random().toString(36).substr(2, 5),
+                    design: 'nethichutti',
+                    name:   'Chola Nethi Chutti',
+                    specs:  'Purity: 22K Gold Filigree | Accents: Kemp Rubies & Natural Pearls',
+                    notes:  '[Reference Photo: ' + file + ']',
+                    image:  NETHI_DIR + file
+                });
+                localStorage.setItem('ad_jewels_cart', JSON.stringify(cart));
+                const orig = nBtnVault.textContent;
+                nBtnVault.textContent = '\u2726 Added to Vault! \u2726';
+                nBtnVault.style.background = '#fcf6ba';
+                setTimeout(() => { nBtnVault.textContent = orig; nBtnVault.style.background = '#bf953f'; }, 2000);
+            });
+        }
+    };
+
+    window.closeNethichuttiCatalog = function () {
+        nResolve();
+        if (!nOverlay) return;
+        nOverlay.style.display = 'none';
+        document.body.style.overflow = '';
+        const gallery = document.getElementById('gallery');
+        if (gallery) setTimeout(() => gallery.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+    };
+
+}());
+
 document.addEventListener('DOMContentLoaded', () => {
     'use strict';
 

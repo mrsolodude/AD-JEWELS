@@ -2434,7 +2434,11 @@ body.subpage-active {
 
     /* Make close button (Back to Grid) visible inside the showcase modal */
     .showcase-canvas .close-showcase-btn {
-        display: block !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: 36px !important;
+        box-sizing: border-box !important;
         position: absolute !important;
         top: 16px !important;
         left: 16px !important;
@@ -2442,7 +2446,7 @@ body.subpage-active {
         border: 1px solid rgba(191, 149, 63, 0.4) !important;
         color: #bf953f !important;
         border-radius: 4px !important;
-        padding: 6px 14px !important;
+        padding: 0 16px !important;
         font-size: 0.72rem !important;
         text-transform: uppercase !important;
         font-weight: 600 !important;
@@ -2510,6 +2514,14 @@ body.subpage-active {
     .showcase-canvas button[class*="next"] {
         right: 12px !important;
     }
+
+    /* Fix zoom controls on mobile: make them horizontal to prevent overlapping with image and align with close button */
+    .zoom-controls {
+        flex-direction: row !important;
+        top: 16px !important;
+        right: 16px !important;
+        gap: 8px !important;
+    }
 }
 
 /* Prevent horizontal scrolling and layout leakage on all catalog overlays */
@@ -2517,7 +2529,8 @@ body.subpage-active {
 #kaasuMaalaiCatalogOverlay,
 #vankiCatalogOverlay,
 #maangaCatalogOverlay,
-#oddiyanamCatalogOverlay {
+#oddiyanamCatalogOverlay,
+#nethichuttiCatalogOverlay {
     overflow: hidden !important;
     width: 100vw !important;
     max-width: 100vw !important;
